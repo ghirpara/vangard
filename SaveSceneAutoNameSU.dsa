@@ -1,0 +1,41 @@
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+function SaveSceneAutoNameSU(){
+
+    init_script_utils();
+
+
+    var sPaddedIncrement = "";
+    if (App.scriptArgs.length > 1) {
+		// First arg, if present, specifies the actual scene number instead of
+		// inferring it from the current scene name
+		sPaddedIncrement = App.scriptArgs[0];
+	
+    } else {
+	
+		var sCurrentFileName = Scene.getFilename().split(".")[0];
+		App.verbose("Current file is [" + sCurrentFileName + "]");
+		
+		test_pattern = RegExp("[0-9]+$");
+
+		mark = sCurrentFileName.match(test_pattern);
+
+		test = Number(mark);
+		test = test + 1;
+		sPaddedIncrement = getZeroPaddedNumber(test, 3);
+
+    }
+	
+    newFileNameRoot = sCurrentFileName.replace(test_pattern, sPaddedIncrement)
+
+    newFileName =  newFileNameRoot +  ".duf";
+
+    App.verbose ("New filename = " + newFileName);
+
+    Scene.saveScene(newFileName);
+
+};
+
+SaveSceneAutoNameSU();

@@ -1,0 +1,67 @@
+/**
+###################################################################
+#
+# Razor - Batch utilities for DAZ Studio 4.22+
+#
+# Copyright (c) 2024-present G.S. Hirpara <gsh@bluemoonfoundry.com>
+#
+# Licensed under the MIT License.
+# See LICENSE in the project root for license information.
+#
+#
+###################################################################
+**/
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function CharacterRotateAndRenderSU() {
+
+    sFunctionName = 'CharacterRotateAndRenderSU';
+
+    init_script_utils (sFunctionName);
+
+    sObjectLabel       = App.scriptArgs[0];
+    sStartRotation     = Number(App.scriptArgs[1]);
+    sEndRotation       = Number(App.scriptArgs[2]);
+    sRotationSlices    = Number(App.scriptArgs[3]);
+    sOutputDirectory   = App.scriptArgs[4];
+
+    sceneFileInfo = DzFileInfo(Scene.getFilename());
+    
+    if (sOutputDirectory == undefined) {
+        sOutputDirectory   = sceneFileInfo.dir().currentPath();
+    }
+
+    var sFileName = Scene.getFilename();
+    var oRenderMgr = App.getRenderMgr();
+    
+    sliceSize = Number((sEndRotation - sStartRotation)/sRotationSlices);
+
+    sFileRoot = sceneFileInfo.baseName();
+
+    oTargetNode   = Scene.findNodeByLabel (sObjectLabel);
+
+    if (sliceSize == 0) {
+
+        execLocalRender(oRenderMgr, sOutputDirectory, sFileName);
+
+    } else {
+
+        for (var r = sStartRotation; r < sEndRotation; r += sliceSize) {
+
+            transformNodeRotate(oTargetNode, r);
+
+            sFileName = sFileRoot + "-" + Number(r) + ".png";
+
+            execLocalRender(oRenderMgr, sOutputDirectory, sFileName);
+        }
+    }
+    
+    close_script_utils();
+}
+
+CharacterRotateAndRenderSU();

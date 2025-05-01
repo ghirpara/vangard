@@ -1,0 +1,79 @@
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+function TransformObjectSU(){
+
+    init_script_utils('TransformObjectSU');
+
+    // Requires at least 2 scripts:
+    // Arg1 = Label of object to translate from
+    // Arg2 = Label of object to translate to (can be pattern?)
+    // Arg3 = Optional, identify transforms (t r s for translate, rotate, scale)
+
+    if (App.scriptArgs.length < 2) {
+		log_error ("TransformObjectSU", {'message': 'TransformObjectSU script requires at least 2 args (object from label, object to label pattern'})
+		return;
+    }
+
+    oSourceNode = Scene.findNodeByLabel (App.scriptArgs[0]);
+    oTargetNode = Scene.findNodeByLabel (App.scriptArgs[1]);
+
+    if (oSourceNode == null) {
+		log_error ("TransformObjectSU", {'message': 'Could not locate requested source node: ' + App.scriptArgs[0]});
+		return;	    
+    }
+
+    if (oTargetNode == null) {
+		log_error ("TransformObjectSU", {'message': 'Could not locate requested target node: ' + App.scriptArgs[1]});
+		return;	    
+    }
+
+    var bTranslateNode=false;
+    var bRotateNode=false;
+    var bScaleNode=false;
+    
+    if (App.scriptArgs.length > 2) {
+		sTransformList = App.scriptArgs[2];
+		aTransformParts = sTransformList.split(' ')
+		
+		for (var y = 0; y < aTransformParts.length; y++) {
+			sPart = aTransformParts[y].lower();
+			if (sPart.startsWith('t')) {
+				bTranslateNode=true;
+			} else if (sPart.startsWith('r')) {
+				bRotateNode=true;
+			} else if (sPart.startsWith('s')) {
+				bScaleNode=true;
+			} 
+		}
+    } else {
+		bTranslateNode=true;
+		bRotateNode=true;
+		bScaleNode=false;
+    }
+
+    log_info ("TransformObjectSU",
+	      {
+		  'request': {
+		      'source': oSourceNode.getLabel(),
+		      'target': oTargetNode.getLabel(),
+		      'translate': bTranslateNode,
+		  'rotate': bRotateNode,
+		      'scale': bScaleNode
+		  }
+	      }
+	     );
+		  
+    transferNodePosition (
+		oTargetNode,
+		oSourceNode,
+		bTranslateNode,
+		bRotateNode,
+		bScaleNode
+	);
+}
+
+TransformObjectSU();
+

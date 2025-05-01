@@ -1,0 +1,59 @@
+/**
+###################################################################
+#
+# Razor - Batch utilities for DAZ Studio 4.22+
+#
+# Copyright (c) 2024-present G.S. Hirpara <gsh@bluemoonfoundry.com>
+#
+# Licensed under the MIT License.
+# See LICENSE in the project root for license information.
+#
+#
+###################################################################
+**/
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+
+var sAutoFocusScriptPath = "X:\DAZ Libraries\Project\Scripts\MikeD\Auto Focus Suite\MDAF Auto Focus on Selected Item.dse";
+var focus_script = null;
+
+function CreateBasicCameraSU() {
+
+    sFunctionName = 'CreateBasicCameraSU';
+
+    init_script_utils (sFunctionName);
+
+    sCameraName = App.scriptArgs[0];
+    sCameraClass = App.scriptArgs[1];
+    bFocusSelection = App.scriptArgs[2];
+
+    if (focus_script == null) {
+        focus_script = DzScript();
+        focus_script.loadFromFile(sAutoFocusScriptPath);
+    }
+
+    new_camera = createPerspectiveCamera ('SCAM', sCameraName, sCameraClass);
+
+    if (new_camera == null) {
+	    log_error(sFunctionName, {'status': 'failed', 'message': 'Could not create requested camera.'});
+    } else {
+        if (bFocusSelection) {
+            new_camera.getDepthOfFieldControl().setBoolValue(true);
+            selection = Scene.getPrimarySelection();
+            if (selection != null) {
+            focus_script.execute();
+                log_info(sFunctionName, {'status': 'success', 'focus_on': selection.getLabel()});
+
+            } else {
+                log_error(sFunctionName, {'status': 'failed', 'message': 'Please select a node to focus on!'});
+            }
+        }
+    }
+    
+    close_script_utils();
+}
+
+CreateBasicCameraSU();

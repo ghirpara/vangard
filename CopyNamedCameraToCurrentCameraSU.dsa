@@ -1,0 +1,48 @@
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+function CopyNamedCameraToCurrentCamera(){
+
+    init_script_utils();
+
+    defaultSourceCamera = "ShootingCamera";
+
+    if (App.scriptArgs.length == 0) {
+		oSourceCamera = getViewportCamera();
+		oTargetCamera = Scene.findNodeByLabel (defaultSourceCamera);
+    } else {
+		if (App.scriptArgs.length >= 1) {
+			oSourceCamera = Scene.findNodeByLabel (App.scriptArgs[0]);
+			if (oSourceCamera == null) {
+				log_error ("CopyNamedCameraToCurrentCamera", {'message': 'Could not locate requested source node: ' + App.scriptArgs[0]});
+				return;	    
+			}	
+		}
+
+		if (App.scriptArgs.length > 1) {
+			oTargetCamera = Scene.findNodeByLabel (App.scriptArgs[1]);
+			if (oTargetCamera == null) {
+			log_error ("CopyNamedCameraToCurrentCamera", {'message': 'Could not locate requested target node: ' + App.scriptArgs[1]});
+			return;	    
+			}
+		} else {
+			oTargetCamera = getViewportCamera();
+		}
+    }
+    
+    log_info ("CopyNamedCameraToCurrentCamera",
+		{
+			'request': {
+				'source': oSourceCamera.getLabel(),
+				'target': oTargetCamera.getLabel()
+			}
+		}
+	);
+		  
+    transferCameraProperties (oTargetCamera, oSourceCamera);
+}
+
+CopyNamedCameraToCurrentCamera();
+

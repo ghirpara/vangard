@@ -1,0 +1,62 @@
+/**********************************************************************
+
+	This script is provided as a hopefully useful utility for Daz script developers and general users. 
+	It based in part on existing Daz Script Documentation (see http://www.daz3d.com), 
+	the licensing text of which is included below and for which the same terms apply for this 
+	script as well:
+
+	The contents of this script, and\or any portion thereof, may only be used
+	in accordance with the following license:
+ 
+	Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+	- http://creativecommons.org/licenses/by/3.0
+ 
+ 
+**********************************************************************/
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+function SingleSceneRendererSU() {
+
+    sFunctionName = 'SingleSceneRendererSU';
+
+    init_script_utils (sFunctionName);
+
+
+    var sInputFile = App.scriptArgs[0];
+    var sFile = App.scriptArgs[1];
+
+    if (sInputFile != "___CURRENT___") {
+        // Load the given scene file
+        var oError = Scene.loadScene(sInputFile, DzScene.OpenNew);
+        if (oError.valueOf() != 0x00000000) {
+            log_error ("SingleSceneRendererSU", {'message': 'Could not locate requested scene file: ' + App.scriptArgs[0]});
+			return;	    
+        }
+    }
+
+    // Get the render manager
+    var oRenderMgr = App.getRenderMgr();
+
+    // Set the render options for the icon render
+    oRenderOptions = oRenderMgr.getRenderOptions();
+    oRenderOptions.isCurrentFrameRender = true;
+    oRenderOptions.renderImgToId = DzRenderOptions.DirectToFile;
+    oRenderOptions.isAspectConstrained = true;
+    oRenderOptions.renderImgFilename = sFile;
+
+    var oErrorRender = oRenderMgr.doRender(oRenderOptions);
+
+    if (oErrorRender.valueOf() != 0x00000000) {
+
+        log_error ("SingleSceneRendererSU", {'message': 'SCR: Render Error Code = ' + oErrorRender.valueOf()});
+
+    } else {
+
+        log_info ("SingleSceneRendererSU", {'message': 'Rendered scene to output file: ' + sFile});
+        
+    }
+}
+
+SingleSceneRendererSU();

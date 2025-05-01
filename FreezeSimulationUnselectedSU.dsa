@@ -1,0 +1,44 @@
+
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+function FreezeSimulationUnselected() {
+
+    init_script_utils ('FreezeSimulationUnselected');
+
+    selection = Scene.getPrimarySelection();
+    if (selection == null) {
+        log_error(getDefaultLogSourceName(),
+		  {
+		      'message': 'Must select a node to keep unfrozen.'
+		  }
+		 );
+    } else {
+
+	aSelectedNodes = getSkeletonNodes();
+	aFrozenNodes = []
+
+	for (var x = 0; x < aSelectedNodes.length; x++) {
+	    oSelectedNode = aSelectedNodes[x];
+		if (oSelectedNode.getLabel() != selection.getLabel()) {
+			oSelectedNode.getSimulationVisibilityControl().setValue(false);
+			aFrozenNodes.push(oSelectedNode.getLabel());
+		} else {
+			oSelectedNode.getSimulationVisibilityControl().setValue(true);
+		}
+	}
+
+	log_info(getDefaultLogSourceName(),
+		 {
+		     'selected_node':  selection.getLabel(),
+		     'frozen_nodes': JSON.stringify(aFrozenNodes)
+		 }
+		);
+    }
+
+    close_script_utils();
+}
+
+FreezeSimulationUnselected();

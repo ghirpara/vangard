@@ -1,0 +1,45 @@
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+function SaveSceneAutoNameWithTextSU(){
+
+    init_script_utils();
+
+
+    var sCurrentFileName = Scene.getFilename().split(".")[0];
+    var sCurrentTextFileName = sCurrentFileName + ".txt";
+    var sCurrentSceneNotes = "";
+    
+    finfo = DzFileInfo (sCurrentTextFileName);
+    if (finfo.exists()) {
+        file = DzFile(sCurrentTextFileName);
+        file.open(DzFile.ReadOnly);
+        sCurrentSceneNotes = file.read();
+        file.close();
+    } 
+	
+    var sSceneNotes = "";
+    var sPaddedIncrement = "";
+    
+    if (App.scriptArgs.length > 1) {
+        // First arg, if present, are the scene notes for the file 
+        sSceneNotes = sCurrentSceneNotes + "\n" + App.scriptArgs[0];
+	
+    } else {
+
+	    sSceneNotes = getSimpleTextInput(sCurrentSceneNotes);
+
+    }
+
+
+    if (sSceneNotes.length > 0) {
+        file = DzFile(sCurrentTextFileName);
+        file.open(DzFile.WriteOnly);
+        file.write (sSceneNotes);
+        file.close();
+    }
+    
+};
+
+SaveSceneAutoNameWithTextSU();
