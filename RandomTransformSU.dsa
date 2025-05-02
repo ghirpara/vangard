@@ -14,18 +14,20 @@ function RandomTransformSU(){
     aSelectedNodes = Scene.getSelectedNodeList();
     for (var x = 0 ; x < aSelectedNodes.length; x++) {
         oSelectedNode = aSelectedNodes[x];
-        fRandomValue = getRandomRotationValue(low_range, high_range);
-        transformNodeRotate (oSelectedNode, fRandomValue);
 
-        log_info ("RandomTransformSU",
-            {
-                'request': {
-                    'source': oSelectedNode.getLabel(),
-                    'rotation': fRandomValue,
+        if (transform_type == "rotate") {
+            fRandomValue = getRandomRotationValue(low_range, high_range);
+            transformNodeRotate (oSelectedNode, fRandomValue);
+
+            log_info ("RandomTransformSU",
+                {
+                    'request': {
+                        'source': oSelectedNode.getLabel(),
+                        'rotation': fRandomValue,
+                    }
                 }
-            }
-        );
-
+            );
+        }
     }
 }
 

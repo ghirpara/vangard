@@ -1,142 +1,218 @@
 {
     "random-rotate": {
-	"script_file": "RandomTransformSU.dsa",
-	"description": "Randomly rotate the selected nodes in the scene given a rotation range",
-	"args":[	
-	    {
-		"name": "transform-type",
-		"description": "One of rotation, transform, or scale",
-		"optional": false
-	    },
-	    {
-		"name": "low-range",
-		"description": "Low range of the transform",
-		"optional": false
-	    },
-	    {
-		"name": "high-range",	
-		"description": "High range of the transform",
-		"optional": false
-	    }
-	]
+        "script_file": "RandomTransformSU.dsa",
+        "description": "Randomly rotate the selected node in the scene given a rotation range",
+        "args": [
+            {
+                "name": [
+                    "-l",
+                    "--lower"
+                ],
+                "type": "float",
+                "required": true,
+                "default": null,
+                "description": "Low range of transform"
+            },
+            {
+                "name": [
+                    "-u",
+                    "--upper"
+                ],
+                "type": "float",
+                "required": true,
+                "default": null,
+                "description": "High range of transform"
+            }
+        ]
     },
-
-	"scene-render": {
-		"script_file": "SingleSceneRendererSU.dsa",
-		"description": "Direct render the current scene, or a new scene file is specified, to the given output file.",
-		"args":[	
-			{
-				"name": "scene-file",
-				"description": "Name of the scene file to load.",
-				"optional": true
-			},
-			{
-				"name": "output-file",
-				"description": "Path to output file to save to",
-				"optional": false
-			}
-		]
-	},
-
-	"rotate-render": {
-		"script_file": "CharacterRotateAndRenderSU.dsa",
-		"description": "Rotate and render the selected character.",
-		"args":[	
-			{
-				"name": "object-name",
-				"description": "Label of the object to rotate prior to rendering",
-				"optional": false
-			},
-			{
-				"name": "rotation-start",
-				"description": "Starting rotation (in degrees)",
-				"optional": false
-			},
-			{
-				"name": "rotation-end",
-				"description": "Ending rotation (in degrees). rotation-start must be smaller than rotation-end",
-				"optional": false
-			},
-			{
-				"name": "slices",
-				"description": "How many rotations between start and end to rotate. If set to zero, only render, do not rotate.",
-				"optional": false
-			},
-			{
-				"name": "output-path",
-				"description": "Absolute path to directory to render images in",
-				"optional": false
-			}
-		]
-	},
-
+    "scene-render": {
+        "script_file": "SingleSceneRendererSU.dsa",
+        "description": "Direct render the current scene, or a new scene file is specified, to the given output file.",
+        "args": [
+            {
+                "name": [
+                    "-s",
+                    "--scene-file"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Name of the scene file to load."
+            },
+            {
+                "name": [
+                    "-o",
+                    "--output-file"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Path to output file to save to"
+            }
+        ]
+    },
+    "rotate-render": {
+        "script_file": "CharacterRotateAndRenderSU.dsa",
+        "description": "Rotate and render the selected character.",
+        "args": [
+            {
+                "name": "object-name",
+                "description": "Label of the object to rotate prior to rendering",
+                "type": "str",
+                "default": null
+            },
+            {
+                "name": "slices",
+                "description": "How many rotations between start and end to rotate. If set to zero, only render, do not rotate.",
+                "type": "int                                                ",
+                "default": null
+            },
+            {
+                "name": [
+                    "-l",
+                    "--lower"
+                ],
+                "description": "Starting rotation (in degrees)",
+                "required": true,
+                "type": "int",
+                "default": 0
+            },
+            {
+                "name": [
+                    "-u",
+                    "--upper"
+                ],
+                "description": "Ending rotation (in degrees). rotation-start must be smaller than rotation-end",
+                "required": true,
+                "type": "int",
+                "default": 180
+            },
+            {
+                "name": [
+                    "-o",
+                    "--output-file"
+                ],
+                "description": "Absolute path to directory to render images in. Default is to generate one from the scene file name.",
+                "required": false,
+                "type": "str",
+                "default": null
+            }
+        ]
+    },
     "transform-copy": {
-		"script_file": "TransformObjectSU.dsa",
-		"description": "Perform translate, rotate, and/or scale operations on target node to match the transforms on the target node. ",
-		"args":[	
-			{
-			"name": "source-node",
-			"description": "Node to translate from",
-			"optional": false
-			},
-			{
-			"name": "target-node",
-			"description": "Node to translate to",
-			"optional": false
-			},
-			{
-			"name": "transform",
-			"description": "Transform types as a string. e.g. 't r' = Translate, Rotate",
-			"optional": true
-			}
-		]
+        "script_file": "TransformObjectSU.dsa",
+        "description": "Perform translate, rotate, and/or scale operations on target node to match the transforms on the target node. ",
+        "args": [
+            {
+                "name": "source-node",
+                "description": "Node to translate from",
+                "type": "str",
+                "default": null
+            },
+            {
+                "name": "target-node",
+                "description": "Node to translate to",
+                "type": "str",
+                "default": null
+            },
+            {
+                "name": [
+                    "-r",
+                    "--rotate"
+                ],
+                "description": "Apply the rotation transform",
+                "required": false,
+                "type": "bool",
+                "default": null
+            },
+            {
+                "name": [
+                    "-t",
+                    "--translate"
+                ],
+                "description": "Apply the translation transform",
+                "required": false,
+                "type": "bool",
+                "default": null
+            },
+            {
+                "name": [
+                    "-s",
+                    "--scale"
+                ],
+                "description": "Apply the scaling transform",
+                "required": false,
+                "type": "bool",
+                "default": null
+            },
+            {
+                "name": [
+                    "-a",
+                    "--all"
+                ],
+                "description": "Apply rotation, translation, and scaling trasforms",
+                "required": false,
+                "type": "bool",
+                "default": null
+            }
+        ]
     },
     "create-cam": {
-	"script_file": "CreateBasicCameraSU.dsa",
-	"description": "Create a perspective camera with given name and camera type as parameters to generate the name of the camera along with the selected node label.",
-	"args":[
-	    {
-		"name": "cam-name",
-		"description": "Name of the camera",
-		"optional": false
-	    },
-	    {
-		"name": "cam-class",
-		"description": "Class (type) of camera",
-		"optional": false
-	    },
-	    {
-		"name": "focus",
-		"description": "If true, turn DOF on the new camera",
-		"optional": false
-	    }
-	]
+        "script_file": "CreateBasicCameraSU.dsa",
+        "description": "Create a perspective camera with given name and camera type as parameters to generate the name of the camera along with the selected node label.",
+        "args": [
+            {
+                "name": "cam-name",
+                "description": "Name of the camera",
+                "type": "str",
+                "default": null
+            },
+            {
+                "name": "cam-class",
+                "description": "Class (type) of camera",
+                "type": "str",
+                "default": null
+            },
+            {
+                "name": [
+                    "-f",
+                    "--focus"
+                ],
+                "description": "If true, turn DOF on the new camera",
+                "required": false,
+                "type": "bool",
+                "default": false
+            }
+        ]
     },
     "create-group": {
-	"script_file": "CreateGroupNodeSU.dsa",
-	"description": "Group the selected nodes in the scene to the name specified.",
-	"args":[
-	    {
-		"name": "group-name",
-		"description": "Name of the new group."
-	    }
-	]
+        "script_file": "CreateGroupNodeSU.dsa",
+        "description": "Group the selected nodes in the scene to the name specified.",
+        "args": [
+            {
+                "name": "group-name",
+                "description": "Name of the new group.",
+                "type": "str",
+                "default": null
+            }
+        ]
     },
     "copy-camera": {
-	"script_file": "CopyNamedCameraToCurrentCameraSU.dsa",
-	"description": "Copy the specified camera (by label) to the specified target camera, or the current viewport camera if target not specified",
-	"args": [
-	    {
-		"name": "source-camera",
-		"description": "Camera to copy from"
-	    },
-	    {
-		"name": "target-camera",
-		"description": "Camera to copy to (optional)"
-	    }
-	]
+        "script_file": "CopyNamedCameraToCurrentCameraSU.dsa",
+        "description": "Copy the specified camera (by label) to the specified target camera, or the current viewport camera if target not specified",
+        "args": [
+            {
+                "name": "source-camera",
+                "description": "Camera to copy from",
+                "type": "str",
+                "default": null
+            },
+            {
+                "name": "target-camera",
+                "description": "Camera to copy to (optional)",
+                "type": "str",
+                "default": null
+            }
+        ]
     }
 }
-
-
-

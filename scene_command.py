@@ -35,6 +35,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory # Optional: For persistent history
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory # Optional: Suggest based on history
 from prompt_toolkit.completion import NestedCompleter
+import builtins
 
 __iname__ = 'Daz Scene Commander'
 __version__ = '1.0.0'
@@ -50,7 +51,7 @@ prompt_history = FileHistory(prompt_history_file)
 #history_file = os.path.expanduser("~/.pythonhistory")
 
 # Genericized Command file
-command_map = json.load(open("commands.json", "r"))
+#command_map = json.load(open("commands.json", "r"))
 
 # --- ANSI Color Codes (Optional - for the 'You:' prompt if not using rich for it) ---
 supports_color = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
@@ -65,6 +66,55 @@ else:
 
 console=Console()
 
+command_map=None
+
+type_dict = {
+    'int': int,
+    'float': float,
+    'str': str,
+    'list': list,
+    'dict': dict,
+    'bool': bool
+}
+
+def parse_command_file(command_file_name:str):
+    command_map=json.load(open(command_file_name, 'r'))
+    for key in command_map:
+        command = command_map[key]
+        parser = argparse.ArgumentParser(
+            description=command['description'],
+            prog=key
+        )
+        for arg in command['args']:
+            names=None
+            nv=arg['name']
+            if isinstance(nv, str):
+                names=[nv]
+            elif isinstance(nv, list):
+                names=nv
+                
+            kwargs={
+                'type': type_dict[arg['type'].strip()],
+                'default': arg['default'], 
+                'help': arg['description']
+            }
+
+            if 'required' in arg:
+                kwargs['required'] = arg['required']
+
+            parser.add_argument(
+                *names,
+                **kwargs
+            )
+            
+            #     type=getattr(builtins, arg['type']), 
+            #     required=arg['required'], 
+            #     default=arg['default'], 
+            #     help=arg['description']
+            # )
+        command['parser']=parser    
+    return command_map        
+
 def parse_command(command:str) -> (str, str):
 
     script_file=None
@@ -76,14 +126,28 @@ def parse_command(command:str) -> (str, str):
 
     if key == 'help':
         lines=[]
-        for item in command_map:
-            command=item
-            cargs=[]
-            for x in command_map[item]['args']:
-                cargs.append (x['name'])
+        if len(parts) > 1:
+            key = parts[1]
+            command = command_map.get(key, None)
+            if command is None:
+                lines.append(f'Unknown command specified: {COLOR_COMMAND}{key}{COLOR_RESET}')
+            else:
+                print (f'### Parsing command {key}')
+                usage_str=command['parser'].format_usage()
+                parts=shlex.split(usage_str)
+                cli_line = f"{COLOR_COMMAND}{parts[1]} {COLOR_RESET}{COLOR_ARGS}{' '.join(parts[2:])}{COLOR_RESET}"
+                lines.append (cli_line)
+                help_str=command['parser'].format_help()
+                lines.append (help_str)
 
-            arglist=" ".join(cargs)
-            lines.append (f"{COLOR_COMMAND}{command}{COLOR_RESET} {COLOR_ARGS}{arglist}{COLOR_RESET}")
+        else:
+ 
+            for key in command_map:
+                command=command_map[key]
+                usage_str=command['parser'].format_usage()
+                parts=shlex.split(usage_str)
+                cli_line = f"{COLOR_COMMAND}{parts[1]} {COLOR_RESET}{COLOR_ARGS}{' '.join(parts[2:])}{COLOR_RESET}"
+                lines.append (cli_line)
 
 
         print ("\n".join(lines))
@@ -101,57 +165,17 @@ def parse_command(command:str) -> (str, str):
 
     return script_file, script_args
 
-def _parse_command(command:str) -> (str, str):
-
-    script_file=None
-    script_args=None
-
-    parts = shlex.split(command)
-
-    if len(parts) > 0:
-
-        command=parts[0].strip()
-
-        if command == "transform-copy":
-            if (len(parts) >= 3):
-                script_file = f'{script_location}/TransformObjectSU.dsa'
-                script_args = [parts[1].strip(), parts[2].strip()]
-                if (len(parts) > 3):
-                    script_args.append(parts[3:])
-        elif command == "create-cam":
-            script_file = f'{script_location}/CreateBasicCameraSU.dsa'
-            cam_name = parts[1].strip()
-            cam_class = parts[2].strip()
-            if len(parts) > 3:
-                do_focus = (parts[3].strip() == "focus")
-            else:
-                do_focus = False
-            script_args = [cam_name, cam_class, do_focus]
-        elif command == "create-group":
-            script_file = f'{script_location}/CreateGroupNodeSU.dsa'
-            script_args = [parts[1]];
-        elif command == "help":
-            print (
-                """
-                transform-copy
-                create-cam
-                create-group
-                """
-            )
-                    
-    return script_file, script_args
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser (
-        prog="DAZ Studio Razor",
-        description="A batch submission script to manipulate and render a series of scene files to an iRay server instance, cluster, or farm."
+        prog="DAZ Studio CLI Utilities",
+        description="A script for common DAZ Studio utility functions from a command-line."
     )
 
     parser.add_argument ('-d', '--debug', default=False, action='store_true')
     parser.add_argument ('-v', '--version', default=False, action='store_true')
     parser.add_argument ('-n', '--no-command', default=False, action='store_true')    
-
+    parser.add_argument ('-c', '--command-file', default="commands.json")
     args = parser.parse_args()
 
     if args.debug:
@@ -163,6 +187,8 @@ if __name__ == '__main__':
     if (args.version):
         logger.info (f'{__iname__} {__version__}')
         sys.exit(0)
+
+    command_map = parse_command_file(args.command_file)
 
     console.print("Welcome to the Daz Scene Commander CLI")
     console.print ("   'exit' to quit)")
