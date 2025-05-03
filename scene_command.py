@@ -92,15 +92,20 @@ def parse_command_file(command_file_name:str):
                 names=[nv]
             elif isinstance(nv, list):
                 names=nv
-                
+
             kwargs={
-                'type': type_dict[arg['type'].strip()],
                 'default': arg['default'], 
                 'help': arg['description']
             }
 
             if 'required' in arg:
                 kwargs['required'] = arg['required']
+
+            if arg['type'] == 'bool':
+                kwargs['action']='store_true'
+            else:
+                kwargs['type'] = type_dict[arg['type'].strip()]
+                kwargs['action']='store'
 
             parser.add_argument(
                 *names,
@@ -119,6 +124,7 @@ def parse_command(command:str) -> (str, str):
 
     script_file=None
     script_args=None
+    script_vars=None
 
     parts = shlex.split(command)
 
@@ -151,19 +157,26 @@ def parse_command(command:str) -> (str, str):
 
 
         print ("\n".join(lines))
-        return None, None
+        return None, None, None
 
     if key in command_map:
         command_object = command_map[key]
         script_file = f"{script_location}/{command_object['script_file']}"
         script_args=[]
-        n=1
-        for arg in command_object['args']:
-            if n < len(parts):
-                script_args.append (parts[n])
-            n+=1
+        parser=command_object['parser']
+        command_line=" ".join(parts[1:])
+        print (f"#### PARSER={parser}")
+        print (f"#### PARTS=[{parts}]")
+        print (f"#### CLI = {command_line}")
+        script_args = parser.parse_args(parts[1:])
+        script_vars = vars(script_args)
+        # n=1
+        # for arg in command_object['args']:
+        #     if n < len(parts):
+        #         script_args.append (parts[n])
+        #     n+=1
 
-    return script_file, script_args
+    return script_file, script_args, script_vars
 
 if __name__ == '__main__':
 
@@ -208,12 +221,12 @@ if __name__ == '__main__':
 
             if len(command.strip()) > 0:
 
-                script_file, script_args = parse_command (command)
+                script_file, script_args, script_vars = parse_command (command)
 
                 if script_file is not None:
 
                     exec_generic_command (script_file,
-                                          script_args,
+                                          script_vars,
                                           no_command = args.no_command)
             
 

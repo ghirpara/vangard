@@ -24,11 +24,12 @@ function CreateBasicCameraSU() {
 
     sFunctionName = 'CreateBasicCameraSU';
 
-    init_script_utils (sFunctionName);
+    oScriptVars = init_script_utils (sFunctionName);
 
-    sCameraName = App.scriptArgs[0];
-    sCameraClass = App.scriptArgs[1];
-    bFocusSelection = App.scriptArgs[2];
+    
+    sCameraName = oScriptVars['cam-name']; 
+    sCameraClass = oScriptVars['cam-class']; 
+    bFocusSelection = oScriptVars['focus']; 
 
     if (focus_script == null) {
         focus_script = DzScript();

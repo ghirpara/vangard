@@ -21,13 +21,15 @@ function SingleSceneRendererSU() {
 
     sFunctionName = 'SingleSceneRendererSU';
 
-    init_script_utils (sFunctionName);
+    oScriptVars = init_script_utils (sFunctionName);
 
+    var sInputFile  = oScriptVars['scene_file'];
+    var sOutputFile = oScriptVars['output_file'];
 
-    var sInputFile = App.scriptArgs[0];
-    var sFile = App.scriptArgs[1];
+    //var sInputFile = App.scriptArgs[0];
+    //var sFile = App.scriptArgs[1];
 
-    if (sInputFile != "___CURRENT___") {
+    if (sInputFile != null) {
         // Load the given scene file
         var oError = Scene.loadScene(sInputFile, DzScene.OpenNew);
         if (oError.valueOf() != 0x00000000) {
@@ -44,17 +46,17 @@ function SingleSceneRendererSU() {
     oRenderOptions.isCurrentFrameRender = true;
     oRenderOptions.renderImgToId = DzRenderOptions.DirectToFile;
     oRenderOptions.isAspectConstrained = true;
-    oRenderOptions.renderImgFilename = sFile;
+    oRenderOptions.renderImgFilename = sOutputFile;
 
     var oErrorRender = oRenderMgr.doRender(oRenderOptions);
 
-    if (oErrorRender.valueOf() != 0x00000000) {
+    if (oErrorRender.valueOf()) {
 
-        log_error ("SingleSceneRendererSU", {'message': 'SCR: Render Error Code = ' + oErrorRender.valueOf()});
+        log_info ("SingleSceneRendererSU", {'message': 'Rendered scene to output file: ' + sOutputFile});
 
     } else {
 
-        log_info ("SingleSceneRendererSU", {'message': 'Rendered scene to output file: ' + sFile});
+        log_error ("SingleSceneRendererSU", {'message': 'SCR: Render Error Code = ' + oErrorRender.valueOf()});
         
     }
 }

@@ -1,33 +1,7 @@
 {
-    "random-rotate": {
-        "script_file": "RandomTransformSU.dsa",
-        "description": "Randomly rotate the selected node in the scene given a rotation range",
-        "args": [
-            {
-                "name": [
-                    "-l",
-                    "--lower"
-                ],
-                "type": "float",
-                "required": true,
-                "default": null,
-                "description": "Low range of transform"
-            },
-            {
-                "name": [
-                    "-u",
-                    "--upper"
-                ],
-                "type": "float",
-                "required": true,
-                "default": null,
-                "description": "High range of transform"
-            }
-        ]
-    },
     "scene-render": {
         "script_file": "SingleSceneRendererSU.dsa",
-        "description": "Direct render the current scene, or a new scene file is specified, to the given output file.",
+        "description": "Direct render the current scene, or a new scene file if specified, to the given output file.",
         "args": [
             {
                 "name": [
@@ -61,32 +35,25 @@
                 "type": "str",
                 "default": null
             },
+			{
+                "name": "lower",
+                "description": "Starting rotation (in degrees)",
+                "type": "int",
+                "default": 0
+            },
+            {
+                "name": "upper",
+                "description": "Ending rotation (in degrees). rotation-start must be smaller than rotation-end",
+                "type": "int",
+                "default": 180
+            },
             {
                 "name": "slices",
                 "description": "How many rotations between start and end to rotate. If set to zero, only render, do not rotate.",
                 "type": "int                                                ",
                 "default": null
             },
-            {
-                "name": [
-                    "-l",
-                    "--lower"
-                ],
-                "description": "Starting rotation (in degrees)",
-                "required": true,
-                "type": "int",
-                "default": 0
-            },
-            {
-                "name": [
-                    "-u",
-                    "--upper"
-                ],
-                "description": "Ending rotation (in degrees). rotation-start must be smaller than rotation-end",
-                "required": true,
-                "type": "int",
-                "default": 180
-            },
+          
             {
                 "name": [
                     "-o",
@@ -96,11 +63,21 @@
                 "required": false,
                 "type": "str",
                 "default": null
+            },
+			{
+                "name": [
+                    "-s",
+                    "--skip-render"
+                ],
+                "description": "Flag whether to render or the rotated character or not. Setting this flag skips the rendering step.",
+                "required": false,
+                "type": "bool",
+                "default": false
             }
         ]
     },
     "transform-copy": {
-        "script_file": "TransformObjectSU.dsa",
+        "script_file": "CopyTransformObjectSU.dsa",
         "description": "Perform translate, rotate, and/or scale operations on target node to match the transforms on the target node. ",
         "args": [
             {
@@ -202,13 +179,13 @@
         "description": "Copy the specified camera (by label) to the specified target camera, or the current viewport camera if target not specified",
         "args": [
             {
-                "name": "source-camera",
+                "name": ["-s", "--source-camera"],
                 "description": "Camera to copy from",
                 "type": "str",
                 "default": null
             },
             {
-                "name": "target-camera",
+                "name": ["-t", "--target-camera"],
                 "description": "Camera to copy to (optional)",
                 "type": "str",
                 "default": null

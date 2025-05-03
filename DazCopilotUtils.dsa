@@ -122,6 +122,17 @@ function init_script_utils(log_source_id) {
 	} else if( typeof( Action ) == "undefined" ) {
 		updateModifierKeyState();
 	}
+
+    var sVars = JSON.parse(App.scriptArgs[0]);
+
+    log_info("DAZCopilotUtils", 
+        {
+            'message': "Extracted script Args = " + JSON.stringify(sVars)
+        }
+    );
+
+    return sVars;
+
 }
 
 /*********************************************************************/
@@ -197,7 +208,7 @@ function getSkeletonNodes() {
 
 
 /*********************************************************************/
-function transferNodePosition(oToNode, oFromNode, bTranslate, bRotate, bScale) {
+function transferNodeTransforms(oToNode, oFromNode, bTranslate, bRotate, bScale) {
 
     if (oFromNode.inherits("DzBone")) {
         from_skeleton = oFromNode.getSkeleton();
@@ -212,36 +223,38 @@ function transferNodePosition(oToNode, oFromNode, bTranslate, bRotate, bScale) {
     }
 
 
-    log_info('ObjectTranslation', {
-	'from_node': oFromNode.getLabel(),
-	'to_node': oToNode.getLabel(),
-	'transforms':  {
-	    'translate': bTranslate,
-	    'rotate': bRotate,
-	    'scale': bScale
-	}
-    });
+    log_info('ObjectTranslation', 
+        {
+            'from_node': oFromNode.getLabel(),
+            'to_node': oToNode.getLabel(),
+            'transforms':  {
+                'translate': bTranslate,
+                'rotate': bRotate,
+                'scale': bScale
+            }
+        }
+    );
 
     if (bTranslate) {
 
-	wsVector = to_skeleton.getWSPos()
+        wsVector = to_skeleton.getWSPos()
 
-	from_skeleton.getXPosControl().setValue (wsVector.x);
-	from_skeleton.getYPosControl().setValue (wsVector.y);
-	from_skeleton.getZPosControl().setValue (wsVector.z);
+        from_skeleton.getXPosControl().setValue (wsVector.x);
+        from_skeleton.getYPosControl().setValue (wsVector.y);
+        from_skeleton.getZPosControl().setValue (wsVector.z);
 
     }
     
     if (bRotate) {
-	from_skeleton.getXRotControl().setValue (to_skeleton.getXRotControl().getValue());
-	from_skeleton.getYRotControl().setValue (to_skeleton.getYRotControl().getValue());
-	from_skeleton.getZRotControl().setValue (to_skeleton.getZRotControl().getValue());
+        from_skeleton.getXRotControl().setValue (to_skeleton.getXRotControl().getValue());
+        from_skeleton.getYRotControl().setValue (to_skeleton.getYRotControl().getValue());
+        from_skeleton.getZRotControl().setValue (to_skeleton.getZRotControl().getValue());
     }
 
     if (bScale) {
-	from_skeleton.getXScaleControl().setValue (to_skeleton.getXScaleControl().getValue());
-	from_skeleton.getYScaleControl().setValue (to_skeleton.getYScaleControl().getValue());
-	from_skeleton.getZScaleControl().setValue (to_skeleton.getZScaleControl().getValue());
+        from_skeleton.getXScaleControl().setValue (to_skeleton.getXScaleControl().getValue());
+        from_skeleton.getYScaleControl().setValue (to_skeleton.getYScaleControl().getValue());
+        from_skeleton.getZScaleControl().setValue (to_skeleton.getZScaleControl().getValue());
     }
 }
 
@@ -279,6 +292,10 @@ function getViewportCamera() {
     var camera = viewPort.getCamera();
 
     return camera;
+}
+
+function getNamedCamera(camera_label) {
+    return Scene.findCameraByLabel(camera_label);
 }
 
 function createPerspectiveCamera(cameraLabelPrefix, cameraName, cameraClass) {

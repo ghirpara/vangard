@@ -5,12 +5,9 @@ util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
 include (util_path);
 
 function CreateGroupNodeSU() {
-
     sFunctionName = 'CreateGroupNodeSU';
-
-    init_script_utils (sFunctionName);
-
-    sGroupName = App.scriptArgs[0];
+    oScriptVars = init_script_utils (sFunctionName);
+    sGroupName = oScriptVars['group-name'];
 
     var oGroupNode = new DzGroupNode();
     oGroupNode.name = sGroupName;

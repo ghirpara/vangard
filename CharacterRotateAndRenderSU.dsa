@@ -22,13 +22,14 @@ function CharacterRotateAndRenderSU() {
 
     sFunctionName = 'CharacterRotateAndRenderSU';
 
-    init_script_utils (sFunctionName);
+    oScriptVars = init_script_utils (sFunctionName);
 
-    sObjectLabel       = App.scriptArgs[0];
-    sStartRotation     = Number(App.scriptArgs[1]);
-    sEndRotation       = Number(App.scriptArgs[2]);
-    sRotationSlices    = Number(App.scriptArgs[3]);
-    sOutputDirectory   = App.scriptArgs[4];
+    sObjectLabel       = oScriptVars['object-name']; //App.scriptArgs[0];
+    sStartRotation     = Number(oScriptVars['lower']); //App.scriptArgs[1]);
+    sEndRotation       = Number(oScriptVars['upper']); //App.scriptArgs[2]);
+    sRotationSlices    = Number(oScriptVars['slices']); //App.scriptArgs[3]);
+    sOutputDirectory   = oScriptVars['output_file']; //App.scriptArgs[4];
+    bSkipRender        = oScriptVars['skip_render'];
 
     sceneFileInfo = DzFileInfo(Scene.getFilename());
     
@@ -47,7 +48,9 @@ function CharacterRotateAndRenderSU() {
 
     if (sliceSize == 0) {
 
-        execLocalRender(oRenderMgr, sOutputDirectory, sFileName);
+        if (bSkipRender != true) {
+            execLocalRender(oRenderMgr, sOutputDirectory, sFileName);
+        }
 
     } else {
 
@@ -55,9 +58,17 @@ function CharacterRotateAndRenderSU() {
 
             transformNodeRotate(oTargetNode, r);
 
+            log_info (sFunctionName,
+                {
+                    "message": "Rotated " + sObjectLabel + " to " + r
+                }
+               );
+
             sFileName = sFileRoot + "-" + Number(r) + ".png";
 
-            execLocalRender(oRenderMgr, sOutputDirectory, sFileName);
+            if (bSkipRender != true) {
+                execLocalRender(oRenderMgr, sOutputDirectory, sFileName);
+            }
         }
     }
     

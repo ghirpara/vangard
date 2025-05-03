@@ -50,19 +50,20 @@ def call_job_script(config,
 
     exec_generic_command (script_file, None, no_command)
 
-def exec_generic_command(script_file:str, script_args:list, no_command:bool=False):
+def exec_generic_command(script_file:str, script_vars:dict, no_command:bool=False):
 
     daz_root = "c:/Program Files/DAZ 3D/DAZStudio4/DAZStudio.exe"
     
     if no_command == False:
-        print (f'Executing script file: {script_file}')
-
         mark_args="";        
-        if script_args is not None:
-            for x in script_args:
-                mark_args += f'-scriptArg "{x}" '
+        if script_vars is not None:
+            mark_args += f'{json.dumps(script_vars)}'
+            #for x in script_args:
+            #    mark_args += f'-scriptArg "{x}" '
 
-        process = subprocess.Popen (f'"{daz_root}" {mark_args} {script_file}',
+        
+        print (f'Executing script file: {script_file} MA={mark_args}')
+        process = subprocess.Popen (f'"{daz_root}" -scriptArg \'{mark_args}\' {script_file}',
                                     shell=False)
 
     else:
