@@ -41,7 +41,7 @@ __iname__ = 'Daz Scene Commander'
 __version__ = '1.0.0'
 
 logger=None
-script_location = Path(__file__).resolve().parent
+script_location = str(Path(__file__).resolve().parent)+"/dazscripts"
 
 # --- Prompt entry history
 prompt_history_file = os.path.join(os.path.expanduser("~"), ".dazsu_history")
