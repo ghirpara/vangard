@@ -19,6 +19,7 @@ include (util_path);
 
 var sAutoFocusScriptPath = "X:\DAZ Libraries\Project\Scripts\MikeD\Auto Focus Suite\MDAF Auto Focus on Selected Item.dse";
 var focus_script = null;
+var bFocusEnabled = null;
 
 function CreateBasicCameraSU() {
 
@@ -26,14 +27,20 @@ function CreateBasicCameraSU() {
 
     oScriptVars = init_script_utils (sFunctionName);
 
-    
     sCameraName = oScriptVars['cam-name']; 
     sCameraClass = oScriptVars['cam-class']; 
     bFocusSelection = oScriptVars['focus']; 
 
-    if (focus_script == null) {
-        focus_script = DzScript();
-        focus_script.loadFromFile(sAutoFocusScriptPath);
+    if (bFocusEnabled == null) {
+        if (focus_script == null) {
+            focus_script = DzScript();
+            if (focus_script.loadFromFile(sAutoFocusScriptPath) == true``) {
+                bFocusEnabled = true;
+            } else {
+                bFocusEnabled = false;
+                log_error(sFunctionname, {'status': 'failed', 'message': 'No valid auto-focus script has been defined! Check the documentation.'})
+            }
+        }
     }
 
     new_camera = createPerspectiveCamera ('SCAM', sCameraName, sCameraClass);
@@ -41,7 +48,7 @@ function CreateBasicCameraSU() {
     if (new_camera == null) {
 	    log_error(sFunctionName, {'status': 'failed', 'message': 'Could not create requested camera.'});
     } else {
-        if (bFocusSelection) {
+        if (bFocusEnabled && bFocusSelection) {
             new_camera.getDepthOfFieldControl().setBoolValue(true);
             selection = Scene.getPrimarySelection();
             if (selection != null) {
@@ -51,7 +58,7 @@ function CreateBasicCameraSU() {
             } else {
                 log_error(sFunctionName, {'status': 'failed', 'message': 'Please select a node to focus on!'});
             }
-        }
+        } 
     }
     
     close_script_utils();

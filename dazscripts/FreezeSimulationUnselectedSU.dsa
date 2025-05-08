@@ -6,7 +6,8 @@ include (util_path);
 
 function FreezeSimulationUnselected() {
 
-    init_script_utils ('FreezeSimulationUnselected');
+	sFunctionName = 'FreezeSimulationUnselected';
+    init_script_utils (sFunctionName);
 
     selection = Scene.getPrimarySelection();
     if (selection == null) {

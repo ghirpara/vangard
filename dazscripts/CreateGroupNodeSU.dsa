@@ -7,6 +7,8 @@ include (util_path);
 function CreateGroupNodeSU() {
     sFunctionName = 'CreateGroupNodeSU';
     oScriptVars = init_script_utils (sFunctionName);
+
+
     sGroupName = oScriptVars['group-name'];
 
     var oGroupNode = new DzGroupNode();
@@ -19,10 +21,14 @@ function CreateGroupNodeSU() {
     var aSelectedNodeList = Scene.getSelectedNodeList();
 
     for (var x = 0; x < aSelectedNodeList.length; x++) {
-	oSelectedNode = aSelectedNodeList[x];
-	oGroupNode.addNodeChild (oSelectedNode, inPlace=true);
-	log_info (sFunctionName, {'node': oSelectedNode.getLabel(),
-				  'group': oGroupNode.getLabel()});
+        oSelectedNode = aSelectedNodeList[x];
+        oGroupNode.addNodeChild (oSelectedNode, inPlace=true);
+        log_info (sFunctionName, 
+            {
+                'node': oSelectedNode.getLabel(),
+                'group': oGroupNode.getLabel()
+            }
+        );
     }
     
     close_script_utils();

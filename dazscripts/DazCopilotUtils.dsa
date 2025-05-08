@@ -66,6 +66,164 @@ function updateModifierKeyState() {
 }
 
 /*********************************************************************/
+	// Boolean : A function for testing whether or not a QObject instance
+	// inherits one of a list of types
+	function inheritsType( oObject, aTypeNames )
+	{
+		// If the object does not define the 'inherits' function
+		if( !oObject || typeof( oObject.inherits ) != "function" ){
+			// We are done... it is not a QObject
+			return false;
+		}
+		
+		// Iterate over the list of type names
+		for( var i = 0, nTypes = aTypeNames.length; i < nTypes; i += 1 ){
+			// If the object does not inherit the 'current' type
+			if( !oObject.inherits( aTypeNames[i] ) ){
+				// Next!!
+				continue;
+			}
+			
+			// Return the result
+			return true;
+		}
+		
+		// Return the result
+		return false;
+	};
+
+/*********************************************************************/
+	// String : A function for getting a file error string
+	function getFileErrorString( oFile )
+	{
+		// Initialize
+		var aResult = [];
+		
+		// Based on the error type
+		switch( oFile.error() ){
+			case DzFile.NoError:
+				break;
+			case DzFile.ReadError:
+				aResult.push( "Read Error" );
+				break;
+			case DzFile.WriteError:
+				aResult.push( "Write Error" );
+				break;
+			case DzFile.FatalError:
+				aResult.push( "Fatal Error" );
+				break;
+			case DzFile.ResourceError:
+				aResult.push( "Resource Error" );
+				break;
+			case DzFile.OpenError:
+				aResult.push( "Open Error" );
+				break;
+			case DzFile.AbortError:
+				aResult.push( "Abort Error" );
+				break;
+			case DzFile.TimeOutError:
+				aResult.push( "TimeOut Error" );
+				break;
+			case DzFile.UnspecifiedError:
+				aResult.push( "Unspecified Error" );
+				break;
+			case DzFile.RemoveError:
+				aResult.push( "Remove Error" );
+				break;
+			case DzFile.RenameError:
+				aResult.push( "Rename Error" );
+				break;
+			case DzFile.PositionError:
+				aResult.push( "Position Error" );
+				break;
+			case DzFile.ResizeError:
+				aResult.push( "Resize Error" );
+				break;
+			case DzFile.PermissionsError:
+				aResult.push( "Permissions Error" );
+				break;
+			case DzFile.CopyError:
+				aResult.push( "Copy Error" );
+				break;
+		}
+		
+		// Append the error string
+		aResult.push( oFile.errorString() );
+		
+		// Return the result string
+		return aResult.length > 0 ? aResult.join( ": " ) : "";
+	};
+	
+	/*********************************************************************/
+	// String : A function for writing data to file
+	function writeToFile( sFilename, vData, nMode )
+	{
+		// If we do not have a file path
+		if( sFilename.isEmpty() ){
+			// Return failure
+			return "Empty filename.";
+		}
+		
+		// Create a new file object
+		var oFile = new DzFile( sFilename );
+		
+		// If the file is already open
+		if( oFile.isOpen() ){
+			// Return failure
+			return sFilename + " is already open.";
+		}
+		
+		// Open the file
+		if( !oFile.open( nMode ) ){
+			// Return failure
+			return sFilename + " could not be opened. " + getFileErrorString( oFile );
+		}
+		
+		// Initialize
+		var nBytes = 0;
+		
+		// Based on the type of the data
+		switch( typeof( vData ) ){
+			case "string":
+				// If we have data to write
+				if( !vData.isEmpty() ){
+					// Write the data to the file
+					nBytes = oFile.write( vData );
+				}
+				break;
+			case "object":
+				// If we have a ByteArray
+				if( inheritsType( vData, ["QByteArrayWrapper"] )
+				&& vData.length > 0 ){
+					// Write the data to the file
+					nBytes = oFile.writeBytes( vData );
+				}
+				break;
+		}
+		
+		// Close the file
+		oFile.close();
+		
+		// Initialize
+		var sError = "";
+		
+		// If an error occured
+		if( nBytes < 0 ){
+			// Provide feedback
+			sError = getFileErrorString( oFile );
+		}
+		
+		// If bytes were not written
+		if( nBytes < 1 ){
+			// Return failure
+			return "No bytes written.";
+		}
+		
+		// Return result
+		return sError;
+	};
+
+/*********************************************************************/
 // void : A function for setting the required options
 function setRequiredOptions( oSettings, bShowOptions )
 {
@@ -170,14 +328,17 @@ function log_info(event_name, event_info) {
     log_event("INFO", event_name, event_info);
 }
 
+/*********************************************************************/
 function log_warning(event_name, event_info) {
     log_event("WARNING", event_name, event_info);
 }
 
+/*********************************************************************/
 function log_error(event_name, event_info) {
     log_event("ERROR", event_name, event_info);
 }
 
+/*********************************************************************/
 function log_debug(event_name, event_info) {
     log_event("DEBUG", event_name, event_info);
 }
@@ -258,6 +419,7 @@ function transferNodeTransforms(oToNode, oFromNode, bTranslate, bRotate, bScale)
     }
 }
 
+/*********************************************************************/
 function getRandomRotationValue(low_range, high_range) {
 
     output = Math.random() * (high_range - low_range);
@@ -274,6 +436,7 @@ function getRandomRotationValue(low_range, high_range) {
 
 }
 
+/*********************************************************************/
 function transformNodeRotate(oFromNode, fValue) {
 
     if (oFromNode.inherits("DzBone")) {
@@ -285,6 +448,7 @@ function transformNodeRotate(oFromNode, fValue) {
     from_skeleton.getYRotControl().setValue (fValue);
 }
 
+/*********************************************************************/
 function getViewportCamera() {
     //Get perspective view
     var viewPortMgr = MainWindow.getViewportMgr();
@@ -294,10 +458,43 @@ function getViewportCamera() {
     return camera;
 }
 
+/*********************************************************************/
 function getNamedCamera(camera_label) {
     return Scene.findCameraByLabel(camera_label);
 }
 
+function getValidCameraList(oRenderConfig) {
+
+    // Get the list of cameras associated with the scene
+    var aCameraList = Scene.getCameraList();
+    
+    var aCameraListActual = [];
+    var sCameraSelectionCriteria = oRenderConfig['cameras'];
+
+    if ((sCameraSelectionCriteria == "all_visible") || (sCameraSelectionCriteria == "pattern")) {
+        for (var n = 0; n < aCameraList.length; n++) {
+            var oCamera = aCameraList[n];
+            var sCameraName = oCamera.getLabel();
+            if (sCameraSelectionCriteria == "all_visible") {
+                if (oCamera.isVisible()) {
+                    aCameraListActual.push(oCamera);
+                }
+            } else if (sCameraSelectionCriteria == "pattern") {
+                var test_pattern = oRenderConfig['camera_pattern'];
+                var match_index  = sCameraName.search(test_pattern);
+                if (match_index != -1) {
+                    aCameraListActual.push(oCamera);
+                }
+            } 
+        }
+    } else {
+        aCameraListActual.push (getViewportCamera());
+    }
+
+    return aCameraListActual;
+}    
+
+/*********************************************************************/
 function createPerspectiveCamera(cameraLabelPrefix, cameraName, cameraClass) {
     
     var oNewCamera = null;
@@ -337,6 +534,7 @@ function createPerspectiveCamera(cameraLabelPrefix, cameraName, cameraClass) {
     return oNewCamera;
 }
 
+/*********************************************************************/
 function select_node(label) {
     rv=null;
     Scene.selectAllNodes(false);		
@@ -350,6 +548,7 @@ function select_node(label) {
     return rv;
 }
 
+/*********************************************************************/
 function delete_node(label) {
     rv = select_node(label);
     if (rv != null) {
@@ -360,191 +559,7 @@ function delete_node(label) {
     }
 }
 
-function get_viewport_camera() {
-    // Get the viewport manager
-    var oViewportMgr = MainWindow.getViewportMgr();
-    
-    // Get the active viewport
-    var oViewport = oViewportMgr.getActiveViewport();
-    
-    // Get the 3D viewport
-    var o3DViewport = oViewport.get3DViewport();
-    
-    // Get the active camera for the job
-    var oCamera = o3DViewport.getCamera();
 
-    return oCamera;
-}
-
-function get_valid_camera_list(oRenderConfig) {
-
-    // Get the list of cameras associated with the scene
-    var aCameraList = Scene.getCameraList();
-    
-    var aCameraListActual = [];
-    var sCameraSelectionCriteria = oRenderConfig['cameras'];
-
-    if ((sCameraSelectionCriteria == "all_visible") || (sCameraSelectionCriteria == "pattern")) {
-        for (var n = 0; n < aCameraList.length; n++) {
-            var oCamera = aCameraList[n];
-            var sCameraName = oCamera.getLabel();
-            if (sCameraSelectionCriteria == "all_visible") {
-                if (oCamera.isVisible()) {
-                    aCameraListActual.push(oCamera);
-                }
-            } else if (sCameraSelectionCriteria == "pattern") {
-                var test_pattern = oRenderConfig['camera_pattern'];
-                var match_index  = sCameraName.search(test_pattern);
-                if (match_index != -1) {
-                    aCameraListActual.push(oCamera);
-                }
-            } 
-        }
-    } else {
-        aCameraListActual.push (get_viewport_camera());
-    }
-
-    return aCameraListActual;
-}    
-
-
-function submit_iray_server_render(oIrayConfig, oRenderConfig) {
-
-    // Define the image file extension
-    var sExtension = "png";
-
-    App.verbose ("XIRSB: BEGIN iRayServerBatcher process")
-    
-    // Define the priority of the job; lower value = higher priority
-    
-    // Define the URI components
-    var sProtocol = oIrayConfig['secure_protocol'];
-    var sServerAddress = oIrayConfig['iray_host'];
-    var sUser = oIrayConfig['iray_user'];
-    var sPass = oIrayConfig['iray_password'];
-    var iPort = oIrayConfig['iray_port'];
-
-    // Define whether or not to monitor the job
-    var bMonitorJob = false;
-    
-    // Declare working variables
-    var oSettings;
-    var oSubSettings;
-
-    // Get the render manager
-    var oRenderMgr = App.getRenderMgr();
-    var oRenderer = oRenderMgr.findRenderer( "DzIrayRenderer" );
-
-    // Get the render options for the job
-    var oRenderOptions = oRenderMgr.getRenderOptions();
-
-    // If DzIrayRenderer::setBridgeConfiguration() is available - i.e., 4.21.1.11
-    if( typeof( oRenderer.setBridgeConfiguration ) == "function" ) {
-        // Create a settings object
-        oSettings = new DzSettings();
-        
-        // Build the configuration settings
-        oSettings.setIntValue    ( "Connection", 0 );
-        oSettings.setStringValue ( "Server", sServerAddress );
-        oSettings.setBoolValue   ( "Secure", sProtocol == "https" );
-        oSettings.setIntValue    ( "Port", iPort); //parseInt( sPort ) );
-        oSettings.setStringValue ( "Username", sUser);
-        oSettings.setStringValue ( "Password", sPass);
-
-        oRenderer.setBridgeConfiguration( oSettings );	
-    }
-
-    // Render the current scene
-    var sSceneFile = Scene.getFilename();
-    var sSceneInfo = DzFileInfo(sSceneFile);
-    var sSceneName = sSceneInfo.completeBaseName();
-
-    // Get the list of cameras associated with the scene
-    var aCameraList = Scene.getCameraList();
-    
-    var aCameraListActual = get_valid_camera_list(oRenderConfig);
-
-    var iPriority = oRenderConfig['priority'];
-    var frames_per_camera = oRenderConfig['last_frame'] - oRenderConfig['first_frame'];        
-    var total_frames = aCameraListActual.length * frames_per_camera;
-    var frame_count = 0;
-
-    var sJobNamePattern = oRenderConfig['job_name_pattern'];
-
-    if (sJobNamePattern == undefined) {
-
-        sJobNamePattern  = "%s_%c_%f";
-
-    }
-    
-
-    log_info('iray_server_render', {'scenefile': sSceneFile, 'valid_cameras': aCameraListActual});
-    
-    // Iterate over the cameras in the scene
-    for (var n = 0; n < aCameraListActual.length; n++) {
-
-        oCamera = aCameraListActual[n];
-        sCameraName = oCamera.getLabel();
-
-        log_info('iray_server_render',
-		 {
-		     'camera': {
-			 'name': sCameraName,
-			 'index': n,
-			 'total': aCameraListActual.length
-		     }
-		 }
-		)
-	
-        sJobName = sSceneName + "_" + oCamera.getLabel();
-
-        for (var f = oRenderConfig['first_frame']; f < oRenderConfig['last_frame']; f++) {
-	    
-            Scene.setFrame(f);
-	    
-            sJobName = sJobNamePattern.replace('%s', sSceneName);
-            sJobName = sJobName.replace('%c', oCamera.getLabel());
-            sJobName = sJobName.replace('%f', "" + f);
-	
-	
-            log_info ("iray_server_render",
-		      {'camera': sCameraName,
-		       'camera_index': n + "/" + aCameraList.length,
-		       'frame_index': f + "/" + oRenderConfig['last_frame'],
-		       'job_name': sJobName
-		      });
-
-            var oResponse = oRenderer.exportRenderToBridgeQueue( 
-		sJobName,
-		sExtension,
-		oCamera,
-		oRenderOptions,
-		iPriority 
-            );
-
-            // Declare working variable
-            var sMessage;
-
-            // If we have an error message member
-            if( oResponse.hasOwnProperty( "errorMsg" ) ){
-		// Get the error message
-		sMessage = oResponse[ "errorMsg" ];
-
-		// If we have an error message
-		if( !sMessage.isEmpty() ){
-		    log_error("iray_server_render",
-			      {"message": "nVidia Iray Server Bridge Error",
-			       "error": text(sMessage)});
-		}
-            }
-	} // Frame list
-    } // Camera List
-
-    log_info('submitted_file', {'filename': sSceneFile});    
-
-
-    close_script_utils();
-}
 
 
 function getZeroPaddedNumber(input_number, padding_size) {
@@ -621,6 +636,144 @@ function getSimpleTextInput(sCurrentText)
     
     return rv;
 };
+
+
+function execIrayServerRender(oIrayConfig, oRenderConfig) {
+
+    // Define the image file extension
+    var sExtension = "png";
+
+    App.verbose ("XIRSB: BEGIN iRayServerBatcher process")
+    
+    // Define the priority of the job; lower value = higher priority
+    
+    // Define the URI components
+    var sProtocol = oIrayConfig['secure_protocol'];
+    var sServerAddress = oIrayConfig['iray_host'];
+    var sUser = oIrayConfig['iray_user'];
+    var sPass = oIrayConfig['iray_password'];
+    var iPort = oIrayConfig['iray_port'];
+
+    // Define whether or not to monitor the job
+    var bMonitorJob = false;
+    
+    // Declare working variables
+    var oSettings;
+    var oSubSettings;
+
+    // Get the render manager
+    var oRenderMgr = App.getRenderMgr();
+    var oRenderer = oRenderMgr.findRenderer( "DzIrayRenderer" );
+
+    // Get the render options for the job
+    var oRenderOptions = oRenderMgr.getRenderOptions();
+
+    // If DzIrayRenderer::setBridgeConfiguration() is available - i.e., 4.21.1.11
+    if( typeof( oRenderer.setBridgeConfiguration ) == "function" ) {
+        // Create a settings object
+        oSettings = new DzSettings();
+        
+        // Build the configuration settings
+        oSettings.setIntValue    ( "Connection", 0 );
+        oSettings.setStringValue ( "Server", sServerAddress );
+        oSettings.setBoolValue   ( "Secure", sProtocol == "https" );
+        oSettings.setIntValue    ( "Port", iPort); //parseInt( sPort ) );
+        oSettings.setStringValue ( "Username", sUser);
+        oSettings.setStringValue ( "Password", sPass);
+
+        oRenderer.setBridgeConfiguration( oSettings );	
+    }
+
+    // Render the current scene
+    var sSceneFile = Scene.getFilename();
+    var sSceneInfo = DzFileInfo(sSceneFile);
+    var sSceneName = sSceneInfo.completeBaseName();
+
+    // Get the list of cameras associated with the scene
+    var aCameraList = Scene.getCameraList();
+    
+    var aCameraListActual = getValidCameraList(oRenderConfig);
+
+    var iPriority = oRenderConfig['priority'];
+    var frames_per_camera = oRenderConfig['last_frame'] - oRenderConfig['first_frame'];        
+    var total_frames = aCameraListActual.length * frames_per_camera;
+    var frame_count = 0;
+
+    var sJobNamePattern = oRenderConfig['job_name_pattern'];
+
+    if (sJobNamePattern == undefined) {
+
+        sJobNamePattern  = "%s_%c_%f";
+
+    }
+
+    log_info('iray_server_render', {'scenefile': sSceneFile, 'valid_cameras': aCameraListActual});
+    
+    // Iterate over the cameras in the scene
+    for (var n = 0; n < aCameraListActual.length; n++) {
+
+        oCamera = aCameraListActual[n];
+        sCameraName = oCamera.getLabel();
+
+        log_info('iray_server_render',
+		 {
+		     'camera': {
+			 'name': sCameraName,
+			 'index': n,
+			 'total': aCameraListActual.length
+		     }
+		 }
+		)
+	
+        sJobName = sSceneName + "_" + oCamera.getLabel();
+
+        for (var f = oRenderConfig['first_frame']; f < oRenderConfig['last_frame']; f++) {
+	    
+            Scene.setFrame(f);
+	    
+            sJobName = sJobNamePattern.replace('%s', sSceneName);
+            sJobName = sJobName.replace('%c', oCamera.getLabel());
+            sJobName = sJobName.replace('%f', "" + f);
+	
+	
+            log_info ("iray_server_render",
+		      {'camera': sCameraName,
+		       'camera_index': n + "/" + aCameraList.length,
+		       'frame_index': f + "/" + oRenderConfig['last_frame'],
+		       'job_name': sJobName
+		      });
+
+            var oResponse = oRenderer.exportRenderToBridgeQueue( 
+		sJobName,
+		sExtension,
+		oCamera,
+		oRenderOptions,
+		iPriority 
+            );
+
+            // Declare working variable
+            var sMessage;
+
+            // If we have an error message member
+            if( oResponse.hasOwnProperty( "errorMsg" ) ){
+		// Get the error message
+		sMessage = oResponse[ "errorMsg" ];
+
+		// If we have an error message
+		if( !sMessage.isEmpty() ){
+		    log_error("iray_server_render",
+			      {"message": "nVidia Iray Server Bridge Error",
+			       "error": text(sMessage)});
+		}
+            }
+	} // Frame list
+    } // Camera List
+
+    log_info('submitted_file', {'filename': sSceneFile});    
+
+
+    close_script_utils();
+}
 
 //
 // void: Render the current scene to a file on disk with the

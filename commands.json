@@ -191,5 +191,38 @@
                 "default": null
             }
         ]
+    },
+
+    "product-list": {
+        "script_file": "ListSceneProductsSU.dsa",
+        "description": "List the product information for objects in the current scene",
+        "pre-script": {
+            "script-callback": "process_product_list_reset",
+            "script-args": ["target_file"]
+        },
+        "post-script": {
+            "script-callback": "process_product_list",
+            "script-args": ["target_file"]
+        },
+        "args": [
+            {
+                "name": ["-t", "--target-file"],
+                "description": "File to write output information to",
+                "type": "str",
+                "default": "C:/Temp/products.json"
+            },
+            {
+                "name": ["-n", "--node-context"],
+                "description": "If specified, present the output in the context of nodes. Otherwise the default is to present output in the context of products.",
+                "type": "bool",
+                "default": false
+            },
+            {
+                "name": ["-s", "--selected-only"],
+                "description": "Only identify products for the currently selected node.",
+                "type": "bool",
+                "default": false
+            }
+        ]
     }
 }

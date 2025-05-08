@@ -21,6 +21,7 @@ import shutil
 import tempfile
 import datetime as dt
 import time
+import user_functions
 from utils import exec_generic_command
 from pathlib import Path
 import logging
@@ -163,6 +164,8 @@ def parse_command(command:str) -> (str, str):
         command_object = command_map[key]
         script_file = f"{script_location}/{command_object['script_file']}"
         script_args=[]
+        pre_script = command_object.get('pre-script')
+        post_script = command_object.get('post-script')
         parser=command_object['parser']
         command_line=" ".join(parts[1:])
         print (f"#### PARSER={parser}")
@@ -176,7 +179,7 @@ def parse_command(command:str) -> (str, str):
         #         script_args.append (parts[n])
         #     n+=1
 
-    return script_file, script_args, script_vars
+    return pre_script, post_script, script_file, script_args, script_vars
 
 if __name__ == '__main__':
 
@@ -221,13 +224,29 @@ if __name__ == '__main__':
 
             if len(command.strip()) > 0:
 
-                script_file, script_args, script_vars = parse_command (command)
+                pre_script, post_script, script_file, script_args, script_vars = parse_command (command)
 
                 if script_file is not None:
+
+                    if pre_script is not None:
+                        kargs={}
+                        for arg in pre_script["script-args"]:
+                            kargs[arg]=script_vars[arg]
+                            callback=getattr(user_functions, pre_script["script-callback"])
+                            callback(**kargs)
 
                     exec_generic_command (script_file,
                                           script_vars,
                                           no_command = args.no_command)
+                    
+                    if post_script is not None:
+                        kargs={}
+                        for arg in post_script["script-args"]:
+                            kargs[arg]=script_vars[arg]
+                            callback=getattr(user_functions, post_script["script-callback"])
+                            callback(**kargs)
+
+
             
 
         except (EOFError, KeyboardInterrupt):

@@ -24,11 +24,11 @@ function CharacterRotateAndRenderSU() {
 
     oScriptVars = init_script_utils (sFunctionName);
 
-    sObjectLabel       = oScriptVars['object-name']; //App.scriptArgs[0];
-    sStartRotation     = Number(oScriptVars['lower']); //App.scriptArgs[1]);
-    sEndRotation       = Number(oScriptVars['upper']); //App.scriptArgs[2]);
-    sRotationSlices    = Number(oScriptVars['slices']); //App.scriptArgs[3]);
-    sOutputDirectory   = oScriptVars['output_file']; //App.scriptArgs[4];
+    sObjectLabel       = oScriptVars['object-name']; 
+    sStartRotation     = Number(oScriptVars['lower']); 
+    sEndRotation       = Number(oScriptVars['upper']); 
+    sRotationSlices    = Number(oScriptVars['slices']);
+    sOutputDirectory   = oScriptVars['output_file']; 
     bSkipRender        = oScriptVars['skip_render'];
 
     sceneFileInfo = DzFileInfo(Scene.getFilename());

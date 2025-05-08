@@ -68,3 +68,9 @@ def exec_generic_command(script_file:str, script_vars:dict, no_command:bool=Fals
 
     else:
         print (f'No-command is in effect. No script op run')
+
+
+
+
+
+

@@ -5,12 +5,8 @@ include (util_path);
 
 function CopyTransformObjectSU(){
 
-    oScriptVars = init_script_utils('CopyTransformObjectSU');
-
-    // Requires at least 2 scripts:
-    // Arg1 = Label of object to translate from
-    // Arg2 = Label of object to translate to (can be pattern?)
-    // Arg3 = Optional, identify transforms (t r s for translate, rotate, scale)
+	sFunctionName = 'sFunctionName';
+    oScriptVars = init_script_utils(sFunctionName);
 
 	oSourceNode = Scene.findNodeByLabel(oScriptVars['source-node'])
 	oTargetNode = Scene.findNodeByLabel(oScriptVars['target-node'])
@@ -29,7 +25,7 @@ function CopyTransformObjectSU(){
     var bRotateNode=oScriptVars['rotate'] || oScriptVars['all'];
     var bScaleNode=oScriptVars['scale'] || oScriptVars['all'];
 
-    log_info ("TransformObjectSU",
+    log_info (sFunctionName,
 	      {
 		  'request': {
 		      'source': oSourceNode.getLabel(),
