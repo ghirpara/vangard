@@ -1,0 +1,54 @@
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+function CopyTransformObjectSU(){
+
+    oScriptVars = init_script_utils('CopyTransformObjectSU');
+
+    // Requires at least 2 scripts:
+    // Arg1 = Label of object to translate from
+    // Arg2 = Label of object to translate to (can be pattern?)
+    // Arg3 = Optional, identify transforms (t r s for translate, rotate, scale)
+
+	oSourceNode = Scene.findNodeByLabel(oScriptVars['source-node'])
+	oTargetNode = Scene.findNodeByLabel(oScriptVars['target-node'])
+
+    if (oSourceNode == null) {
+		log_error ("TransformObjectSU", {'message': 'Could not locate requested source node: ' + oScriptVars['source-node']});
+		return;	    
+    }
+
+    if (oTargetNode == null) {
+		log_error ("TransformObjectSU", {'message': 'Could not locate requested target node: ' + oScriptVars['target-node']});
+		return;	    
+    }
+
+    var bTranslateNode=oScriptVars['translate'] || oScriptVars['all'];
+    var bRotateNode=oScriptVars['rotate'] || oScriptVars['all'];
+    var bScaleNode=oScriptVars['scale'] || oScriptVars['all'];
+
+    log_info ("TransformObjectSU",
+	      {
+		  'request': {
+		      'source': oSourceNode.getLabel(),
+		      'target': oTargetNode.getLabel(),
+		      'translate': bTranslateNode,
+		  	  'rotate': bRotateNode,
+		      'scale': bScaleNode
+		  }
+	      }
+	     );
+		  
+    transferNodeTransforms (
+		oTargetNode,
+		oSourceNode,
+		bTranslateNode,
+		bRotateNode,
+		bScaleNode
+	);
+}
+
+CopyTransformObjectSU();
+
