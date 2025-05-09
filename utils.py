@@ -48,9 +48,9 @@ def call_job_script(config,
         f.write (json.dumps(config, indent=2))
         f.flush()
 
-    exec_generic_command (script_file, None, no_command)
+    exec_remote_script (script_file, None, no_command)
 
-def exec_generic_command(script_file:str, script_vars:dict, no_command:bool=False):
+def exec_remote_script (script_file:str, script_vars:dict, no_command:bool=False):
 
     daz_root = "c:/Program Files/DAZ 3D/DAZStudio4/DAZStudio.exe"
     

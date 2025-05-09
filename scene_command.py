@@ -164,8 +164,8 @@ def parse_command(command:str) -> (str, str):
         command_object = command_map[key]
         script_file = f"{script_location}/{command_object['script_file']}"
         script_args=[]
-        pre_script = command_object.get('pre-script')
-        post_script = command_object.get('post-script')
+        pre_scripts = command_object.get('pre-scripts')
+        post_scripts = command_object.get('post-scripts')
         parser=command_object['parser']
         command_line=" ".join(parts[1:])
         print (f"#### PARSER={parser}")
@@ -173,13 +173,17 @@ def parse_command(command:str) -> (str, str):
         print (f"#### CLI = {command_line}")
         script_args = parser.parse_args(parts[1:])
         script_vars = vars(script_args)
-        # n=1
-        # for arg in command_object['args']:
-        #     if n < len(parts):
-        #         script_args.append (parts[n])
-        #     n+=1
 
-    return pre_script, post_script, script_file, script_args, script_vars
+    return pre_scripts, post_scripts, script_file, script_args, script_vars
+
+def exec_local_commands(scripts):
+    if scripts is not None:
+        for script in scripts:                      
+            kargs={}
+            for arg in script["script-args"]:
+                kargs[arg]=script_vars[arg]
+                callback=getattr(user_functions, script["script-callback"])
+                callback(**kargs)
 
 if __name__ == '__main__':
 
@@ -224,30 +228,17 @@ if __name__ == '__main__':
 
             if len(command.strip()) > 0:
 
-                pre_script, post_script, script_file, script_args, script_vars = parse_command (command)
+                pre_scripts, post_scripts, script_file, script_args, script_vars = parse_command (command)
 
                 if script_file is not None:
 
-                    if pre_script is not None:
-                        kargs={}
-                        for arg in pre_script["script-args"]:
-                            kargs[arg]=script_vars[arg]
-                            callback=getattr(user_functions, pre_script["script-callback"])
-                            callback(**kargs)
+                    exec_local_commands(pre_scripts)
 
-                    exec_generic_command (script_file,
-                                          script_vars,
-                                          no_command = args.no_command)
+                    exec_remote_script (script_file,
+                                        script_vars,
+                                        no_command = args.no_command)
                     
-                    if post_script is not None:
-                        kargs={}
-                        for arg in post_script["script-args"]:
-                            kargs[arg]=script_vars[arg]
-                            callback=getattr(user_functions, post_script["script-callback"])
-                            callback(**kargs)
-
-
-            
+                    exec_local_commands(pre_scripts)            
 
         except (EOFError, KeyboardInterrupt):
             # Exit the loop on Ctrl+D or Ctrl+C

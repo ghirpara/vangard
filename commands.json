@@ -196,14 +196,18 @@
     "product-list": {
         "script_file": "ListSceneProductsSU.dsa",
         "description": "List the product information for objects in the current scene",
-        "pre-script": {
+        "pre-scripts": [
+            {
             "script-callback": "process_product_list_reset",
             "script-args": ["target_file"]
-        },
-        "post-script": {
+            }
+        ],
+        "post-scripts": [
+            {
             "script-callback": "process_product_list",
             "script-args": ["target_file"]
-        },
+            }
+        ]
         "args": [
             {
                 "name": ["-t", "--target-file"],
