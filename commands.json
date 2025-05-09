@@ -1,6 +1,6 @@
 {
     "scene-render": {
-        "script_file": "SingleSceneRendererSU.dsa",
+        "script-file": "SingleSceneRendererSU.dsa",
         "description": "Direct render the current scene, or a new scene file if specified, to the given output file.",
         "args": [
             {
@@ -26,7 +26,7 @@
         ]
     },
     "rotate-render": {
-        "script_file": "CharacterRotateAndRenderSU.dsa",
+        "script-file": "CharacterRotateAndRenderSU.dsa",
         "description": "Rotate and render the selected character.",
         "args": [
             {
@@ -77,7 +77,7 @@
         ]
     },
     "transform-copy": {
-        "script_file": "CopyTransformObjectSU.dsa",
+        "script-file": "CopyTransformObjectSU.dsa",
         "description": "Perform translate, rotate, and/or scale operations on target node to match the transforms on the target node. ",
         "args": [
             {
@@ -135,7 +135,7 @@
         ]
     },
     "create-cam": {
-        "script_file": "CreateBasicCameraSU.dsa",
+        "script-file": "CreateBasicCameraSU.dsa",
         "description": "Create a perspective camera with given name and camera type as parameters to generate the name of the camera along with the selected node label.",
         "args": [
             {
@@ -163,7 +163,7 @@
         ]
     },
     "create-group": {
-        "script_file": "CreateGroupNodeSU.dsa",
+        "script-file": "CreateGroupNodeSU.dsa",
         "description": "Group the selected nodes in the scene to the name specified.",
         "args": [
             {
@@ -175,7 +175,7 @@
         ]
     },
     "copy-camera": {
-        "script_file": "CopyNamedCameraToCurrentCameraSU.dsa",
+        "script-file": "CopyNamedCameraToCurrentCameraSU.dsa",
         "description": "Copy the specified camera (by label) to the specified target camera, or the current viewport camera if target not specified",
         "args": [
             {
@@ -193,8 +193,29 @@
         ]
     },
 
+    "apply-pose": {
+
+        "script-file": "ApplyGenericPostSU.dsa",
+        "description": "Apply the given named posed as pose file to the currently selected node or specified node",
+        "args": [
+            {
+                "name": ["pose-file"],
+                "description": "Absolute path to the pose file to be applied",
+                "type": "str",
+                "default": null
+            },
+            {
+                "name": ["-t", "--target-node"],
+                "description": "Label of the node to apply the pose to. If not specified, apply to the currently selected node.",
+                "type": "str",
+                "default": null
+            }
+        ]
+
+    },
+
     "product-list": {
-        "script_file": "ListSceneProductsSU.dsa",
+        "script-file": "ListSceneProductsSU.dsa",
         "description": "List the product information for objects in the current scene",
         "pre-scripts": [
             {

@@ -48,12 +48,6 @@ script_location = str(Path(__file__).resolve().parent)+"/dazscripts"
 prompt_history_file = os.path.join(os.path.expanduser("~"), ".dazsu_history")
 prompt_history = FileHistory(prompt_history_file)
 
-## Define the history file path
-#history_file = os.path.expanduser("~/.pythonhistory")
-
-# Genericized Command file
-#command_map = json.load(open("commands.json", "r"))
-
 # --- ANSI Color Codes (Optional - for the 'You:' prompt if not using rich for it) ---
 supports_color = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
 if supports_color:
@@ -161,7 +155,7 @@ def parse_command(command:str) -> tuple[list, list, str, Any, dict]:
 
     if key in command_map:
         command_object = command_map[key]
-        script_file = f"{script_location}/{command_object['script_file']}"
+        script_file = f"{script_location}/{command_object['script-file']}"
         script_args=[]
         pre_scripts = command_object.get('pre-scripts')
         post_scripts = command_object.get('post-scripts')

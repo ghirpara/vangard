@@ -1,0 +1,62 @@
+/**
+###################################################################
+#
+# Razor - Batch utilities for DAZ Studio 4.22+
+#
+# Copyright (c) 2024-present G.S. Hirpara <gsh@bluemoonfoundry.com>
+#
+# Licensed under the MIT License.
+# See LICENSE in the project root for license information.
+#
+#
+###################################################################
+**/
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function ApplyGenericPoseSU() {
+
+    sFunctionName = 'ApplyGenericPoseSU';
+
+    oScriptVars = init_script_utils (sFunctionName);
+
+    sPoseFilePath     = oScriptVars['pose-file']
+    sTargetNodeName   = oScriptVars['target-node']; 
+
+    // Validate that the pose file exists 
+    mark = DzFileInfo(sPoseFilePath);
+
+    if (!mark.exists()) {
+        log_error(sFunctionName, {'status': 'failed', 'message':'Specified pose file [' + sPoseFilePath + '] does not exist or is not readable.'});
+        return;
+    }
+
+    oTargetNode = null;
+
+    if (sTargetNodeName != null) {
+
+        oTargetNode = Scene.findNodeByLabel(sTargetNodeName);
+
+    } else {
+
+        oTargetNode = Scene.getPrimarySelection();
+    }
+
+    if (oTargetNode == null) {
+        log_error(sFunctionName, {'status': 'failed', 'message':'Could not find requested node [' + sTargetNodeName + ']'});
+        return;
+    }
+
+    Scene.loadScene(sPoseFilePath, DzScene.OpenMerge);
+
+    
+    close_script_utils();
+}
+
+ApplyGenericPoseSU();
+
+// "X:/working/sprites/templates/G8M/poses/conversation1.duf"
