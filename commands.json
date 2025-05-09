@@ -207,7 +207,7 @@
             "script-callback": "process_product_list",
             "script-args": ["target_file"]
             }
-        ]
+        ],
         "args": [
             {
                 "name": ["-t", "--target-file"],

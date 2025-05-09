@@ -22,7 +22,7 @@ import tempfile
 import datetime as dt
 import time
 import user_functions
-from utils import exec_generic_command
+from utils import exec_remote_script
 from pathlib import Path
 import logging
 import shlex
@@ -121,7 +121,7 @@ def parse_command_file(command_file_name:str):
         command['parser']=parser    
     return command_map        
 
-def parse_command(command:str) -> (str, str):
+def parse_command(command:str) -> tuple[list, list, str, Any, dict]:
 
     script_file=None
     script_args=None
@@ -139,7 +139,6 @@ def parse_command(command:str) -> (str, str):
             if command is None:
                 lines.append(f'Unknown command specified: {COLOR_COMMAND}{key}{COLOR_RESET}')
             else:
-                print (f'### Parsing command {key}')
                 usage_str=command['parser'].format_usage()
                 parts=shlex.split(usage_str)
                 cli_line = f"{COLOR_COMMAND}{parts[1]} {COLOR_RESET}{COLOR_ARGS}{' '.join(parts[2:])}{COLOR_RESET}"
@@ -158,7 +157,7 @@ def parse_command(command:str) -> (str, str):
 
 
         print ("\n".join(lines))
-        return None, None, None
+        return None, None, None, None, None
 
     if key in command_map:
         command_object = command_map[key]
@@ -168,9 +167,6 @@ def parse_command(command:str) -> (str, str):
         post_scripts = command_object.get('post-scripts')
         parser=command_object['parser']
         command_line=" ".join(parts[1:])
-        print (f"#### PARSER={parser}")
-        print (f"#### PARTS=[{parts}]")
-        print (f"#### CLI = {command_line}")
         script_args = parser.parse_args(parts[1:])
         script_vars = vars(script_args)
 
