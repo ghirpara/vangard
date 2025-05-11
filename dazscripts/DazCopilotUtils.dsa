@@ -638,12 +638,10 @@ function getSimpleTextInput(sCurrentText)
 };
 
 
-function execIrayServerRender(oIrayConfig, oRenderConfig) {
+function prepareIrayBridgeConfiguration(oIrayConfig, oRenderMgr, oRenderer) {
 
     // Define the image file extension
     var sExtension = "png";
-
-    App.verbose ("XIRSB: BEGIN iRayServerBatcher process")
     
     // Define the priority of the job; lower value = higher priority
     
@@ -660,10 +658,6 @@ function execIrayServerRender(oIrayConfig, oRenderConfig) {
     // Declare working variables
     var oSettings;
     var oSubSettings;
-
-    // Get the render manager
-    var oRenderMgr = App.getRenderMgr();
-    var oRenderer = oRenderMgr.findRenderer( "DzIrayRenderer" );
 
     // Get the render options for the job
     var oRenderOptions = oRenderMgr.getRenderOptions();
@@ -682,6 +676,17 @@ function execIrayServerRender(oIrayConfig, oRenderConfig) {
         oSettings.setStringValue ( "Password", sPass);
 
         oRenderer.setBridgeConfiguration( oSettings );	
+    }
+}
+
+function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
+{
+    // Get the render manager
+    var oRenderMgr = App.getRenderMgr();
+    var oRenderer = oRenderMgr.findRenderer( "DzIrayRenderer" );
+
+    if (sRenderTarget == "iray-server-bridge") {
+        prepareIrayBridgeConfiguration(oIrayConfig, oRenderMgr, oRenderer)
     }
 
     // Render the current scene
@@ -707,7 +712,12 @@ function execIrayServerRender(oIrayConfig, oRenderConfig) {
 
     }
 
-    log_info('iray_server_render', {'scenefile': sSceneFile, 'valid_cameras': aCameraListActual});
+    if (sOutputBasePath == null) {
+        parent = sSceneInfo.dir();
+        sOutputBasePath = parent.absolutePath();
+    }
+
+    log_info('execBatchRender', {'scenefile': sSceneFile, 'valid_cameras': aCameraListActual});
     
     // Iterate over the cameras in the scene
     for (var n = 0; n < aCameraListActual.length; n++) {
@@ -715,7 +725,7 @@ function execIrayServerRender(oIrayConfig, oRenderConfig) {
         oCamera = aCameraListActual[n];
         sCameraName = oCamera.getLabel();
 
-        log_info('iray_server_render',
+        log_info('execBatchRender',
 		 {
 		     'camera': {
 			 'name': sCameraName,
@@ -736,37 +746,65 @@ function execIrayServerRender(oIrayConfig, oRenderConfig) {
             sJobName = sJobName.replace('%f', "" + f);
 	
 	
-            log_info ("iray_server_render",
+            log_info ('execBatchRender',
 		      {'camera': sCameraName,
 		       'camera_index': n + "/" + aCameraList.length,
 		       'frame_index': f + "/" + oRenderConfig['last_frame'],
 		       'job_name': sJobName
 		      });
 
-            var oResponse = oRenderer.exportRenderToBridgeQueue( 
-		sJobName,
-		sExtension,
-		oCamera,
-		oRenderOptions,
-		iPriority 
-            );
 
+            var oResponse = null;
+
+            switch (sRenderTarget) {
+                case "local-to-file":
+                    filepath = sSceneInfo.absoluteFilePath();
+                    basename = sSceneInfo.completeBaseName();
+                    sRenderFile = sOutputBasePath + "/" + basename + "." + sExtension;
+
+                    oResponse = execLocalToFileRender(oRenderMgr, sRenderFile);
+                    break;
+
+                case "local-to-window":
+                    oResponse = execNewWindowRender(oRenderMgr);
+                    break;
+
+                case "iray-server-bridge":
+                
+                    oResponse = oRenderer.exportRenderToBridgeQueue( 
+                        sJobName,
+                        sExtension,
+                        oCamera,
+                        oRenderOptions,
+                        iPriority 
+                    );
+                    break;
+                default:
+                    log_error('execBatchRender',
+                        {
+                            "status": "failed",
+                            "message": "Unknown render target specified: " + sRenderTarget,
+                            "error": text(sMessage)
+                        }
+                    );
+                    break;
+            }
             // Declare working variable
             var sMessage;
 
             // If we have an error message member
-            if( oResponse.hasOwnProperty( "errorMsg" ) ){
-		// Get the error message
-		sMessage = oResponse[ "errorMsg" ];
+            if( oResponse != null && oResponse.hasOwnProperty( "errorMsg" ) ){
+                // Get the error message
+                sMessage = oResponse[ "errorMsg" ];
 
-		// If we have an error message
-		if( !sMessage.isEmpty() ){
-		    log_error("iray_server_render",
-			      {"message": "nVidia Iray Server Bridge Error",
-			       "error": text(sMessage)});
-		}
+                // If we have an error message
+                if( !sMessage.isEmpty() ){
+                    log_error('execBatchRender',
+                        {"message": "nVidia Iray Server Bridge Error",
+                        "error": text(sMessage)});
+                }
             }
-	} // Frame list
+	    } // Frame list
     } // Camera List
 
     log_info('submitted_file', {'filename': sSceneFile});    
@@ -775,34 +813,37 @@ function execIrayServerRender(oIrayConfig, oRenderConfig) {
     close_script_utils();
 }
 
-//
-// void: Render the current scene to a file on disk with the
-// subdirectory by date and file name by incrementing sequence number
-// OR the file hint if provided.
-//
-function execLocalRender(oRenderMgr, sOutputBasePath, sFile) {
-    // Render the image using the existing render options
+function getDefaultLocalRenderOptions(oRenderMgr)
+{
+
     var oRenderer = oRenderMgr.getActiveRenderer();
-    // If we did not find a renderer
-    if (!oRenderer) {
-        // Inform the user
-        MessageBox.critical(text("An active renderer could not be found."),
-                    text("Resource Error"), text("&OK"));
-
-        // We are done...
-        return False;
-    }
-
-    var renderFile = sOutputBasePath + "/" + sFile;
 
     // Set the render options for the icon render
     oRenderOptions = oRenderMgr.getRenderOptions();
     oRenderOptions.isCurrentFrameRender = true;
-    oRenderOptions.renderImgToId = DzRenderOptions.DirectToFile;
     oRenderOptions.isAspectConstrained = true;
-    oRenderOptions.renderImgFilename = renderFile;
+ 
+    return [oRenderer, oRenderMgr];
+
+}
+
+function execLocalToFileRender(oRenderMgr, sRenderFile) {
+
+    parts = getDefaultLocalRenderOptions(oRenderMgr);
+    oRenderer = parts[0];
+    oRenderOptions = parts[1];
+    oRenderOptions.renderImgToId = DzRenderOptions.DirectToFile;
+    oRenderOptions.renderImgFilename = sRenderFile;
 
     return oRenderMgr.doRender(oRenderOptions);
 }
 
+function execNewWindowRender(oRenderMgr) {
+    parts = getDefaultLocalRenderOptions(oRenderMgr);
+    oRenderer = parts[0];
+    oRenderOptions = parts[1];
+    oRenderOptions.renderImgToId = DzRenderOptions.NewWindow;
+
+    return oRenderMgr.doRender(oRenderOptions);
+}
 

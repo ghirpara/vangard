@@ -161,7 +161,10 @@ def parse_command(command:str) -> tuple[list, list, str, Any, dict]:
         post_scripts = command_object.get('post-scripts')
         parser=command_object['parser']
         command_line=" ".join(parts[1:])
-        script_args = parser.parse_args(parts[1:])
+        try:
+            script_args = parser.parse_args(parts[1:])
+        except: 
+            return None, None, None, None, None
         script_vars = vars(script_args)
 
     return pre_scripts, post_scripts, script_file, script_args, script_vars
@@ -237,6 +240,7 @@ if __name__ == '__main__':
         except Exception as e:
             # Print any errors that occur
             logger.error(f"Error: {e}")
+
 
     
     

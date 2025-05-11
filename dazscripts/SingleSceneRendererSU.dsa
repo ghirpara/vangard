@@ -42,13 +42,7 @@ function SingleSceneRendererSU() {
     var oRenderMgr = App.getRenderMgr();
 
     // Set the render options for the icon render
-    oRenderOptions = oRenderMgr.getRenderOptions();
-    oRenderOptions.isCurrentFrameRender = true;
-    oRenderOptions.renderImgToId = DzRenderOptions.DirectToFile;
-    oRenderOptions.isAspectConstrained = true;
-    oRenderOptions.renderImgFilename = sOutputFile;
-
-    var oErrorRender = oRenderMgr.doRender(oRenderOptions);
+    var oErrorRender = execLocalToFileRender(oRenderMgr, sOutputFile) 
 
     if (oErrorRender.valueOf()) {
 
