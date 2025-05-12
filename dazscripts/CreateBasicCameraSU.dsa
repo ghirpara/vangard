@@ -34,11 +34,11 @@ function CreateBasicCameraSU() {
     if (bFocusEnabled == null) {
         if (focus_script == null) {
             focus_script = DzScript();
-            if (focus_script.loadFromFile(sAutoFocusScriptPath) == true``) {
+            if (focus_script.loadFromFile(sAutoFocusScriptPath) == true) {
                 bFocusEnabled = true;
             } else {
                 bFocusEnabled = false;
-                log_error(sFunctionname, {'status': 'failed', 'message': 'No valid auto-focus script has been defined! Check the documentation.'})
+                log_error(sFunctionName, {'status': 'failed', 'message': 'No valid auto-focus script has been defined! Check the documentation.'})
             }
         }
     }
@@ -52,12 +52,12 @@ function CreateBasicCameraSU() {
             new_camera.getDepthOfFieldControl().setBoolValue(true);
             selection = Scene.getPrimarySelection();
             if (selection != null) {
-            focus_script.execute();
-                log_info(sFunctionName, {'status': 'success', 'focus_on': selection.getLabel()});
+                focus_script.execute();
+                    log_info(sFunctionName, {'status': 'success', 'focus_on': selection.getLabel()});
 
             } else {
                 log_error(sFunctionName, {'status': 'failed', 'message': 'Please select a node to focus on!'});
-            }
+            }   
         } 
     }
     

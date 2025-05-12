@@ -195,7 +195,7 @@
 
     "apply-pose": {
 
-        "script-file": "ApplyGenericPostSU.dsa",
+        "script-file": "ApplyGenericPoseSU.dsa",
         "description": "Apply the given named posed as pose file to the currently selected node or specified node",
         "args": [
             {

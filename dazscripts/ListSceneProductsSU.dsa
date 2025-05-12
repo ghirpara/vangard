@@ -54,23 +54,8 @@ function ListSceneProductsSU() {
 			// Define the message
 			sTitle = text( "Selection Error" );
 			sMessage = text( "A node in the scene must be selected to continue." );
-			
-			// If prompts are not being supressed
-			if( !bSilent && App.showPrompts() ){
-				// Inform the user
-				MessageBox.information( sMessage, sTitle, sOk );
-			// If the application is not showing prompts
-			} else {
-				// Provide feedback
-				print( sTitle, ":", sMessage );
-				
-				// If we are opening the result
-				if( bOpenResults ){
-					// Cause the log file to be shown
-					openApplicationLog();
-				}
-			}
-			
+
+			log_error('ListSceneProductsSU', {'status': 'failed', 'message': 'No node selected for selected node only mode'});
 			// We are done..
 			return;
 		}
@@ -158,42 +143,15 @@ function ListSceneProductsSU() {
 		
 		// If we do not have any errors
 		if( sError.isEmpty() ){
-			// If we are opening the result
-			if( bOpenResults ){
-				// Cause the file to be shown
-				App.showURL( sFile );
-			// If prompts are not being supressed
-			} else if( !bSilent && App.showPrompts() ){
-				//
-				sTitle = text( "Data Saved" );
-				sMessage = text( "Saved product data to:" ) + "\"" + sFile + "\"";
-				
-				// Inform the user
-				switch( MessageBox.information( sMessage, sTitle, sOk, !bOpenResults ? text( "Open" ): "", !bOpenResults ? text( "Show" ): "" ) ){
-					case 1:
-						// Cause the file to be opened
-						App.showURL( sFile );
-						break;
-					case 2:
-						// Cause the OS file browser to be opened
-						App.showInNativeBrowser( sFile );
-						break;
-					default:
-						break
-				}
-			}
-		// If prompts are not being supressed
+
+			log_info('ListSceneProductsSU', {'status':'success', 'message': 'Wrote output result to file: ' + sFile});
+
 		} else if( !bSilent && App.showPrompts() ){
-			// Inform the user
-			MessageBox.warning( sError, text( "Save Error" ), sOk, "" );
-		// If we are opening the result
-		} else if( bOpenResults ){
-			// Provide feedback
-			print( sError );
-			
-			// Cause the log file to be shown
-			openApplicationLog();
+
+			log_error('ListSceneProductsSU', {'status':'failed', 'message': 'Error sacing file: ' + sError});
+
 		}
+
 	// If we are not writing to file
 	} else {
 		// Provide feedback

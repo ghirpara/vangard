@@ -4,9 +4,13 @@ import os.path
 import time
 
 def process_product_list_reset(target_file):
-    Path.unlink(target_file)
+    print (f"Attempt to unlink file {target_file}")
+
+    if (os.path.exists(target_file)):
+        Path.unlink(target_file)
 
 def process_product_list(target_file):
+
 
     n=30
     while not os.path.exists(target_file):
