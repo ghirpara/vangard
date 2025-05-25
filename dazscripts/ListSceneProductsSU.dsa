@@ -148,7 +148,7 @@ function ListSceneProductsSU() {
 
 		} else if( !bSilent && App.showPrompts() ){
 
-			log_error('ListSceneProductsSU', {'status':'failed', 'message': 'Error sacing file: ' + sError});
+			log_error('ListSceneProductsSU', {'status':'failed', 'message': 'Error writing output file: ' + sError});
 
 		}
 

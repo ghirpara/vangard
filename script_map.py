@@ -1,7 +1,10 @@
 
 import os
 import logging
+from pathlib import Path
 from razor_config import RazorConfig
+
+from glogger import glogger
 
 class ScriptMap:
 
@@ -28,9 +31,9 @@ class ScriptMap:
             test = f"{key}/{script_name}"
             if (os.path.exists(test)):
                 self.script_map[script_name] = test
-                logging.info (f"Added script {test}")
+                glogger.info (f"Added script {test}")
             else:
-                logging.error (f"Could not locate script {test}. Make sure path exists and is readable.")
+                glogger.error (f"Could not locate script {test}. Make sure path exists and is readable.")
 
     def get_script_mapping(self, script_name):
         return self.script_map.get(script_name, None)

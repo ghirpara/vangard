@@ -11,14 +11,12 @@
 ###################################################################
 
 import sys
-
 import argparse
-from pathlib import Path
 import logging
+from pathlib import Path
 from scene_command_processor import SceneCommandProcessor
 
-# Basic configuration
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s', handlers=[logging.FileHandler("razor.log")])
+from glogger import glogger
 
 __iname__ = 'Daz Scene Commander'
 __version__ = '1.0.0'
@@ -39,12 +37,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+        glogger.setLevel(logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.INFO)
+        glogger.setLevel(logging.INFO)
     
     if (args.version):
-        logging.info (f'{__iname__} {__version__}')
+        glogger.info (f'{__iname__} {__version__}')
         sys.exit(0)
 
     scene_commander = SceneCommandProcessor(args.command_file)

@@ -1,10 +1,7 @@
 
+import json
 import os
 import sys
-import json
-import argparse
-import logging
-import subprocess
 import shlex
 from pathlib import Path
 from typing import Any
@@ -18,10 +15,12 @@ from prompt_toolkit.completion import NestedCompleter
 
 from razor_config import RazorConfig
 from command_map import CommandMap, CommandObject
-import user_functions
+from glogger import glogger
 
 script_location = Path(__file__).resolve().parent     
 console=Console()        
+
+
 
 # --- ANSI Color Codes (Optional - for the 'You:' prompt if not using rich for it) ---
 supports_color = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
@@ -77,7 +76,7 @@ class SceneCommandProcessor:
 
             else:
 
-                #logging.debug(f"Command map is {self.command_map.get_commands()}")
+                #glogger.debug(f"Command map is {self.command_map.get_commands()}")
     
                 for key in self.command_map.get_commands():
                     command   = self.command_map.get_command(key)
@@ -108,20 +107,20 @@ class SceneCommandProcessor:
 
                     command_object, script_args, script_vars = self.parse_command (command)
 
-                    logging.debug ("Command processed = " + command)
-                    logging.debug (f"   command obj    = {command_object}")
-                    logging.debug (f"   args           = {script_args}")
-                    logging.debug (f"   vars           = {script_vars}")
+                    glogger.debug ("Command processed = " + command)
+                    glogger.debug (f"   command obj    = {command_object}")
+                    glogger.debug (f"   args           = {script_args}")
+                    glogger.debug (f"   vars           = {script_vars}")
 
                     if command_object is not None:
-                        command_object.exec_pre_command_scripts()
+                        command_object.exec_pre_command_scripts(script_vars)
                         command_object.exec_remote_script(script_vars)
-                        command_object.exec_post_command_scripts()
+                        command_object.exec_post_command_scripts(script_vars)
 
             except (EOFError, KeyboardInterrupt):
                 # Exit the loop on Ctrl+D or Ctrl+C
-                #logger.error("\nExiting...")
+                #glogger.error("\nExiting...")
                 break
             except Exception as e:
                 # Print any errors that occur
-                logging.error(f"Error: {e}")
+                glogger.error(f"Error: {e}")

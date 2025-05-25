@@ -3,10 +3,10 @@ import sys
 import json
 import subprocess
 import argparse
-import logging
 import shlex
 from pathlib import Path
 import user_functions
+from glogger import glogger
 
 # --- ANSI Color Codes (Optional - for the 'You:' prompt if not using rich for it) ---
 supports_color = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
@@ -103,27 +103,31 @@ class CommandObject:
             test = f"{key}/{script_name}"
             if (os.path.exists(test)):
                 self.script_location = test
-                logging.info (f"Added script {test}")
+                glogger.info (f"Added script {test}")
                 break
             else:
-                logging.error (f"Could not locate script {test}. Make sure path exists and is readable.")
+                glogger.error (f"Could not locate script {test}. Make sure path exists and is readable.")
 
     def get_script_mapping(self, script_name):
         return self.script_map.get(script_name, None)
 
-    def exec_pre_command_scripts(self):
+    def exec_pre_command_scripts(self, script_vars):
         if self.pre_scripts is not None:
-            self.exec_local_commands(self, self.pre_scripts)
+            self.exec_local_commands(self.pre_scripts, script_vars)
 
-    def exec_post_command_scripts(self):
+    def exec_post_command_scripts(self, script_vars):
         if self.post_scripts is not None:
-            self.exec_local_commands(self, self.post_scripts)
+            self.exec_local_commands(self.post_scripts, script_vars)
 
-    def exec_local_commands(self, scripts):
+    def exec_local_commands(self, scripts, script_vars):
+
+        glogger.debug(f"SCRIPTS = {scripts}")
+
         if scripts is not None:
             for script in scripts:                      
                 kargs={}
-                for arg in script["script-args"]:
+                script_args = script["script-args"]
+                for arg in script_args:
                     kargs[arg]=script_vars[arg]
                     callback=getattr(user_functions, script["script-callback"])
                     callback(**kargs)
@@ -137,11 +141,11 @@ class CommandObject:
             if script_vars is not None:
                 mark_args += f'{json.dumps(script_vars)}'
 
-            logging.debug (f'Executing script file: root={daz_root} {self.script_location} MA={mark_args}')
+            glogger.debug (f'Executing script file: root={daz_root} {self.script_location} MA={mark_args}')
             process = subprocess.Popen (f'"{daz_root}" -scriptArg \'{mark_args}\' {self.script_location}',
                                         shell=False)
         else:
-            logging.error(f"No valid script file was presented for command: {self.key}")
+            glogger.error(f"No valid script file was presented for command: {self.key}")
    
 
 class CommandMap:
@@ -173,13 +177,15 @@ class CommandMap:
 
         if command is not None:
             try:
-                logging.debug(f"Parsing command line for key {key} as {command_line}")
+                glogger.debug(f"Parsing command line for key {key} as {command_line}")
                 script_args = command.parser.parse_args(command_line)
                 script_vars = vars(script_args)
             except Exception as e:
-                logging.error(f"Failed to locate command for {key}: {str(e)}")
+                glogger.error(f"Failed to locate command for {key}: {str(e)}")
                 script_args = None
                 script_vars = None
+        else:
+            glogger.ingo(f"Could not identify command from command: key={key}, cli={command_line}")
 
         return command, script_args, script_vars
 

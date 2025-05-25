@@ -2,6 +2,7 @@ import os
 import logging
 import json
 from pathlib import Path
+from glogger import glogger
 
 class RazorConfig:
 
@@ -30,7 +31,7 @@ class RazorConfig:
             self.config_file_path = cfile_path
             self.config = json.load(open(cfile_path, "r"))
 
-        logging.debug(f"Extracted Razor configuration is\n{json.dumps(self.config, indent=2)}")
+        glogger.debug(f"Extracted Razor configuration is\n{json.dumps(self.config, indent=2)}")
 
       
     def get(self, key, default_value=None):
