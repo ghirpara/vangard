@@ -31,7 +31,7 @@ class ScriptMap:
             test = f"{key}/{script_name}"
             if (os.path.exists(test)):
                 self.script_map[script_name] = test
-                glogger.info (f"Added script {test}")
+                glogger.info (f"Added script {script_name} = {test}")
             else:
                 glogger.error (f"Could not locate script {test}. Make sure path exists and is readable.")
 

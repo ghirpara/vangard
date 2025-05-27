@@ -249,5 +249,132 @@
                 "default": false
             }
         ]
+    },
+    "batch-render": {
+        "script_file": "BatchRendererSU.dsa",
+        "description": "Given a pattern of scene files, load each one and render it to the target location (default is studio-iray) with the given output file pattern",
+        "args": [
+            {
+                "name": "scene-file-pattern",
+                "description": "Pattern of scene files to load, including glob support. See README for examples",
+                "type": "str",
+                "default": null
+            },
+            {
+                "name": [
+                    "-o",
+                    "--output-path"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Path to directory where output files are to be written. If not specified, use the location of the scene file."
+            },
+            {
+                "name": [
+                    "-t",
+                    "--target"
+                ],
+                "type": "str",
+                "required": false,
+                "default": "direct-file",
+                "description": "Target of the render. Allowed values are local-to-file, local-to-window, or iray-server-bridge",
+            },
+            {
+                "name": [
+                    "-r",
+                    "--resolution"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Resolution to render, overriding the resolution of the scene file, in WxH format (e.g. 1920x1080)"
+            },
+            {
+                "name": [
+                    "-c",
+                    "--cameras"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Cameras to render for. Can be one of 'all_visible', 'viewport', or a pattern that maps to one or more visible cameras",
+            },
+             {
+                "name": [
+                    "-j",
+                    "--job-name-pattern"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Pattern to use for naming job names or render output files. In the pattern, %s refers to the scene name, %c the camera name, %f the frame number, and %r the render count",
+            },
+            {
+                "name": [
+                    "-f",
+                    "--frames"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Frames to render. Comma-separated list of frames that can include ranges and range patterns. See README for full detail and example.",
+            },
+            {
+                "name": [
+                    "--iray-server"
+                ],
+                "type": "str",
+                "required": false,
+                "default": "127.0.0.1",
+                "description": "For target iray-server the IP address or hostname of the iRay server/master to use."
+            },
+            {
+                "name": [
+                    "--iray-protocol"
+                ],
+                "type": "str",
+                "required": false,
+                "default": "http",
+                "description": "Sets the http protocol to use. Allowed values are http or https."
+            },
+            {
+                "name": [
+                    "--iray-port"
+                ],
+                "type": "str",
+                "required": false,
+                "default": "9090",
+                "description": "For target iray-server the TCP port of the iRay server/master."
+            },
+            {
+                "name": [
+                    "--iray-user"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "For target iray-server the username to connect to the iRay server/master. Must be specified here or in config file specified by --iray-config-file"
+            },
+            {
+                "name": [
+                    "--iray-password"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "For target iray-server the password to connect to the iRay server/master. Must be specified here or in config file specified by --iray-config-file"
+            },
+            {
+                "name": [
+                    "--iray-config-file"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "For target iray-server the configuration options file to use for iRay server/master configuration. Values in this file can be overridden by additional command line arguments"
+            }
+
+        ]
     }
 }

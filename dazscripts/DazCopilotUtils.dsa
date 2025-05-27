@@ -226,6 +226,39 @@ function getFileErrorString( oFile )
 
 /*********************************************************************/
 /**
+ * Reads data (string or QByteArrayWrapper) as a JSON structure 
+ * @param {string} sFilename - The path to the file read from
+ * @param {string | QByteArrayWrapper} vData - The data to write. Can be a string or a QByteArrayWrapper-like object.
+ * @param {number} nMode - The file open mode (e.g., `DzFile.WriteOnly`, `DzFile.Append`, `DzFile.Truncate`).
+ *                         See DAZ Studio `DzFile` documentation for open modes.
+ * @returns {DzObject} An EMCAScript Object on success, null on failure
+ */
+
+/*********************************************************************/
+
+function readFromFileAsJson(sFilename) {
+// If we do not have a file path
+    if( sFilename.isEmpty() ){
+        log_failure_event("DazCopilotUtils::readFromFileAsJson", "Required argument sFilename is null");
+        return null;
+    }
+
+    // Create a new file object
+    var oFile = new DzFile( sFilename );
+
+     // Open the file
+    if( !oFile.open( DzFile.ReadOnly ) ){
+        // Return failure
+       log_failure_event("DazCopilotUtils::readFromFileAsJson", sFilename + " could not be opened. " + getFileErrorString( oFile ));
+    }
+
+    oContent = JSON.parse(oFile.read());
+
+    return oContent;
+
+}
+
+/**
  * Writes data (string or QByteArrayWrapper) to a specified file.
  * @param {string} sFilename - The path to the file to write to.
  * @param {string | QByteArrayWrapper} vData - The data to write. Can be a string or a QByteArrayWrapper-like object.
@@ -502,6 +535,11 @@ function log_error(event_name, event_info) {
  */
 function log_debug(event_name, event_info) {
     log_event("DEBUG", event_name, event_info);
+}
+
+
+function log_failure_event(event_source, message) {
+    log_error (event_source, {'status':'failed', 'message': message});
 }
 
 /*********************************************************************/
@@ -835,7 +873,7 @@ function getZeroPaddedNumber(input_number, padding_size) {
     var paddedNumber = (padstr + String(input_number)).slice (-(padding_size + String(input_number).length > padding_size ? String(input_number).length : padding_size));
     // A more common approach for total length `padding_size`:
     // var numStr = String(input_number);
-    // return padstr.substring(0, padding_size - numStr.length) + numStr;
+    // return padstr.string(0, padding_size - numStr.length) + numStr;
     // Or using modern JS: String(input_number).padStart(padding_size, '0'); (but this is DAZ Script)
 
     // The original logic: (padstr + String(input_number)).slice(-(padding_size+1))
@@ -1014,20 +1052,10 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
     // Get the render manager
     var oRenderMgr = App.getRenderMgr();
     var oRenderer = oRenderMgr.findRenderer( "DzIrayRenderer" ); // Assumes Iray, could be more generic
+    var oIrayConfig = oRenderConfig['iray_config']
 
     if (sRenderTarget == "iray-server-bridge") {
-        // Assuming oIrayConfig is accessible globally or passed differently
-        // For this documentation, we'll assume oRenderConfig contains Iray server details
-        // if not, this call will fail if oIrayConfig is not defined in the outer scope.
-        // prepareIrayBridgeConfiguration(oRenderConfig, oRenderMgr, oRenderer); // Pass oRenderConfig if it holds iray details
-        if (typeof oIrayConfig === 'undefined' && oRenderConfig.iray_host) { // Check if oRenderConfig has iray details
-             prepareIrayBridgeConfiguration(oRenderConfig, oRenderMgr, oRenderer);
-        } else if (typeof oIrayConfig !== 'undefined') { // Global oIrayConfig exists
-             prepareIrayBridgeConfiguration(oIrayConfig, oRenderMgr, oRenderer);
-        } else {
-            log_error('execBatchRender', {'message': 'Iray server configuration (oIrayConfig) not found for iray-server-bridge target.'});
-            return;
-        }
+        prepareIrayBridgeConfiguration(oIrayConfig, oRenderMgr, oRenderer);
     }
 
     // Render the current scene
@@ -1074,8 +1102,13 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
 
     log_info('execBatchRender', {'scenefile': sSceneFile, 'valid_cameras_count': aCameraListActual.length, 'target': sRenderTarget});
 
+    var render_count=0;
+    
     // Iterate over the cameras in the scene
     for (var n = 0; n < aCameraListActual.length; n++) {
+
+        render_count = render_count + 1;
+    	
         var oCamera = aCameraListActual[n]; // Corrected: 'var'
         var sCameraName = oCamera.getLabel(); // Corrected: 'var'
 
@@ -1097,6 +1130,7 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
             var sJobName = sJobNamePattern.replace(/%s/g, sSceneName); // Use regex global replace
             sJobName = sJobName.replace(/%c/g, sCameraName.replace(/[^a-zA-Z0-9_-]/g, '_')); // Sanitize camera name for job/file name
             sJobName = sJobName.replace(/%f/g, "" + f);
+	    sJobName = sJobName.replace(/%r/g, "" + render_count);
 
 
             log_info ('execBatchRender',
