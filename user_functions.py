@@ -1,7 +1,14 @@
 import json
+import glob
 from pathlib import Path
 import os.path
 import time
+
+def extract_glob_to_list(scene_files):
+    if (scene_files == "_"):
+        return []
+    else:
+        return glob.glob(scene_files, recursive=True)
 
 def process_product_list_reset(target_file):
     print (f"Attempt to unlink file {target_file}")

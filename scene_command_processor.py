@@ -88,7 +88,12 @@ class SceneCommandProcessor:
 
         else:
 
-            command_object, script_args, script_vars = self.command_map.parse_command(key, parts[1:])
+            try:
+                command_object, script_args, script_vars = self.command_map.parse_command(key, parts[1:])
+            except SystemExit as e:
+                command_object=None
+                script_args=None
+                script_vars=None
 
         return command_object, script_args, script_vars
     
@@ -169,3 +174,4 @@ class SceneCommandProcessor:
             except Exception as e:
                 # Print any errors that occur
                 glogger.error(f"Error: {e}")
+                continue

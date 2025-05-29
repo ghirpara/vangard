@@ -251,14 +251,24 @@
         ]
     },
     "batch-render": {
-        "script_file": "BatchRendererSU.dsa",
+        "script-file": "BatchRenderSU.dsa",
         "description": "Given a pattern of scene files, load each one and render it to the target location (default is studio-iray) with the given output file pattern",
+        "pre-scripts": [
+            {
+                "script-callback": "extract_glob_to_list",
+                "script-args": ["scene_files"]
+            }
+        ],
         "args": [
             {
-                "name": "scene-file-pattern",
+                "name": [
+		    "-s",
+		    "--scene-files"
+		],
                 "description": "Pattern of scene files to load, including glob support. See README for examples",
                 "type": "str",
-                "default": null
+		"required": false,
+                "default": "_"
             },
             {
                 "name": [
@@ -278,7 +288,7 @@
                 "type": "str",
                 "required": false,
                 "default": "direct-file",
-                "description": "Target of the render. Allowed values are local-to-file, local-to-window, or iray-server-bridge",
+                "description": "Target of the render. Allowed values are local-to-file, local-to-window, or iray-server-bridge"
             },
             {
                 "name": [
@@ -298,7 +308,7 @@
                 "type": "str",
                 "required": false,
                 "default": null,
-                "description": "Cameras to render for. Can be one of 'all_visible', 'viewport', or a pattern that maps to one or more visible cameras",
+                "description": "Cameras to render for. Can be one of 'all_visible', 'viewport', or a pattern that maps to one or more visible cameras"
             },
              {
                 "name": [
@@ -308,8 +318,8 @@
                 "type": "str",
                 "required": false,
                 "default": null,
-                "description": "Pattern to use for naming job names or render output files. In the pattern, %s refers to the scene name, %c the camera name, %f the frame number, and %r the render count",
-            },
+                "description": "Pattern to use for naming job names or render output files. In the pattern, %s refers to the scene name, %%c the camera name, %%f the frame number, and %%r the render count"
+             },
             {
                 "name": [
                     "-f",
@@ -318,7 +328,7 @@
                 "type": "str",
                 "required": false,
                 "default": null,
-                "description": "Frames to render. Comma-separated list of frames that can include ranges and range patterns. See README for full detail and example.",
+                "description": "Frames to render. Comma-separated list of frames that can include ranges and range patterns. See README for full detail and example."
             },
             {
                 "name": [
