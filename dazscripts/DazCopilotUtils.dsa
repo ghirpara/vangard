@@ -1146,8 +1146,18 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
     log_info("execBatchRender", {'cameras': aCameraListActual.length, 'camera_names': camera_str});
 
     var iPriority = oRenderConfig['priority'] || 0; // Default priority
-    var firstFrame = parseInt(oRenderConfig['first_frame']) || 0;
-    var lastFrame = parseInt(oRenderConfig['last_frame']) || 1;
+
+    var firstFrame = 0;
+    var lastFrame  = 1;
+    var frameset = oRenderConfig['frames'];
+    if (frameset != null && frameset != undefined) {
+        parts=frameset.split("-");
+        firstFrame=parseInt(parts[0].trim())
+        lastFrame=parseInt(parts[1].trim())
+    }
+
+    //var firstFrame = parseInt(oRenderConfig['first_frame']) || 0;
+    //var lastFrame = parseInt(oRenderConfig['last_frame']) || 1;
     var frames_per_camera = Math.max(0, lastFrame - firstFrame); // Ensure non-negative
 
     // var total_frames = aCameraListActual.length * frames_per_camera; // Not directly used
