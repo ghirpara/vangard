@@ -1,0 +1,66 @@
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function render_batch_exec(sSceneFile, render_config, render_target, output_base_path) {
+
+    if (sScenFile != null) {
+	// Load the given scene file
+	oError = Scene.loadScene(sSceneFile, DzScene.OpenNew);
+	
+	if (oError != Scene.DZ_NO_ERROR) {
+            log_error ("BatchRenderSU", {'status':'failed', 'message': 'Failed to load requested scene file: ' + sSceneFile + ': ' + JSON.stringify(oError)});
+	    return;
+	}
+    }
+    
+    log_info ("BatchRenderSU", {'status':'success', 'message': 'Loaded scene file ' + sSceneFile});
+    
+    execBatchRender(render_config, render_target, output_base_path );
+}
+
+function BatchRenderSU() {
+
+    sFunctionName = 'BatchRenderSU';
+
+    oScriptVars = init_script_utils (sFunctionName);
+
+    
+    // Identify the type of batch render we're interested in 
+    scene_file_list    = oScriptVars['scene-file-list'];
+    render_target      = oScriptVars['target'];
+    output_base_path   = oScriptVars['output-path'];
+    iray_config        = {}
+
+    if (render_target == 'iray-server-bridge') {
+        if (oScriptVars['iray_config_file'] != undefined) {
+            iray_config = readFromFileAsJson(oScriptVars['iray_config_file']);
+        }
+    }
+
+    aIrayVariables = ["iray_server', 'iray_protocol", "iray_port", "iray_user", "iray_password"]
+    for (var x = 0; x < aIrayVariables.length; x++) {
+        test = oScriptVars[aIrayVariables[x]];
+        if (test != null) {
+            iray_config[aIrayVariables[x]] = test;
+        }
+    }
+
+    render_config = oScriptVars;
+    render_config['iray_config'] = iray_config
+
+    if (scene_file_list.length == 0) {
+	    render_batch_exec(null, render_config, render_target, output_base_path);
+    } else {
+        for (var y = 0; y < scene_file_list.length; y++) {
+                scene_file = scene_file_list[y];
+            render_batch_exec(sSceneFile, render_config, render_target, output_base_path);
+        }
+    }
+    close_script_utils();
+
+}
+
+BatchRenderSU();

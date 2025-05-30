@@ -14,9 +14,9 @@ import sys
 import argparse
 import logging
 from pathlib import Path
-from scene_command_processor import SceneCommandProcessor
+from SceneCommandProcessor import SceneCommandProcessor
 
-from glogger import glogger
+from CommonLogger import common_logger
 
 __iname__ = 'Daz Scene Commander'
 __version__ = '1.0.0'
@@ -37,12 +37,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.debug:
-        glogger.setLevel(logging.DEBUG)
+        common_logger.setLevel(logging.DEBUG)
     else:
-        glogger.setLevel(logging.INFO)
+        common_logger.setLevel(logging.INFO)
     
     if (args.version):
-        glogger.info (f'{__iname__} {__version__}')
+        common_logger.info (f'{__iname__} {__version__}')
         sys.exit(0)
 
     scene_commander = SceneCommandProcessor(args.command_file)

@@ -1,8 +1,10 @@
-import os
-import logging
+from CommonLogger import common_logger
+
+
 import json
+import os
 from pathlib import Path
-from glogger import glogger
+
 
 class RazorConfig:
 
@@ -10,8 +12,8 @@ class RazorConfig:
 
         self.config = default_config
         self.config_file_path = None
-        
-        script_dir = Path(__file__).resolve().parent  
+
+        script_dir = Path(__file__).resolve().parent
         home_dir   = str(Path.home())
 
         config_file_locations = [
@@ -31,14 +33,8 @@ class RazorConfig:
             self.config_file_path = cfile_path
             self.config = json.load(open(cfile_path, "r"))
 
-        glogger.debug(f"Extracted Razor configuration is\n{json.dumps(self.config, indent=2)}")
+        common_logger.debug(f"Extracted Razor configuration is\n{json.dumps(self.config, indent=2)}")
 
-      
+
     def get(self, key, default_value=None):
         return self.config.get(key, default_value)
-
-
-
-
-
-

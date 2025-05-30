@@ -1,10 +1,10 @@
+from CommonLogger import common_logger
+from RazorConfig import RazorConfig
+
 
 import os
-import logging
 from pathlib import Path
-from razor_config import RazorConfig
 
-from glogger import glogger
 
 class ScriptMap:
 
@@ -12,7 +12,7 @@ class ScriptMap:
         self.config = config
         self.script_map = {}
 
-        script_dir = Path(__file__).resolve().parent  
+        script_dir = Path(__file__).resolve().parent
 
         self.script_locations = [
             f"{script_dir}/dazscripts"
@@ -31,11 +31,9 @@ class ScriptMap:
             test = f"{key}/{script_name}"
             if (os.path.exists(test)):
                 self.script_map[script_name] = test
-                glogger.info (f"Added script {script_name} = {test}")
+                common_logger.info (f"Added script {script_name} = {test}")
             else:
-                glogger.error (f"Could not locate script {test}. Make sure path exists and is readable.")
+                common_logger.error (f"Could not locate script {test}. Make sure path exists and is readable.")
 
     def get_script_mapping(self, script_name):
         return self.script_map.get(script_name, None)
-
-
