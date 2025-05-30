@@ -1055,12 +1055,16 @@ function prepareIrayBridgeConfiguration(oIrayConfig, oRenderMgr, oRenderer) {
     // Define the image file extension (not used in this function)
     // var sExtension = "png";
 
+
+    App.verbose("*************** oic = " + JSON.stringify(oIrayConfig));
+
+
     // Define the URI components
-    var sProtocol = oIrayConfig['secure_protocol'];
-    var sServerAddress = oIrayConfig['iray_host'];
-    var sUser = oIrayConfig['iray_user'];
-    var sPass = oIrayConfig['iray_password'];
-    var iPort = oIrayConfig['iray_port'];
+    var sProtocol = oIrayConfig['iray-protocol'];
+    var sServerAddress = oIrayConfig['iray-server'];
+    var sUser = oIrayConfig['iray-user'];
+    var sPass = oIrayConfig['iray-password'];
+    var iPort = oIrayConfig['iray-port'];
 
     // Declare working variables
     var oSettings;
@@ -1083,6 +1087,9 @@ function prepareIrayBridgeConfiguration(oIrayConfig, oRenderMgr, oRenderer) {
         oSettings.setStringValue ( "Password", sPass);
 
         oRenderer.setBridgeConfiguration( oSettings );
+
+        log_success_event("prepareIrayBridgeConfiguration", "Prepared iray bridge configuration = " + oSettings);
+
     } else {
         log_warning("prepareIrayBridgeConfiguration", {"message": "oRenderer.setBridgeConfiguration is not available or renderer is null."});
     }
@@ -1122,7 +1129,6 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
     var sSceneFile = Scene.getFilename();
     if (!sSceneFile || sSceneFile.isEmpty()) {
         log_error('execBatchRender', {'message': 'Scene is not saved. Cannot determine scene name or default output path.'});
-        close_script_utils(); // Ensure cleanup
         return;
     }
     var sSceneInfo = new DzFileInfo(sSceneFile); // Corrected: 'new'
@@ -1132,7 +1138,6 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
     var aCameraListActual = getValidCameraList(oRenderConfig);
     if (aCameraListActual.length === 0) {
         log_warning('execBatchRender', {'message': 'No valid cameras found to render based on configuration.'});
-        close_script_utils();
         return;
     } 
 
@@ -1271,8 +1276,6 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
     } // Camera List
 
     log_info('execBatchRender', {'status': 'completed', 'scenefile': sSceneFile});
-
-    close_script_utils();
 }
 
 /**
