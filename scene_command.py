@@ -15,8 +15,8 @@ import argparse
 import logging
 from pathlib import Path
 from SceneCommandProcessor import SceneCommandProcessor
+from CommonUtils import common_logger
 
-from CommonLogger import common_logger
 
 __iname__ = 'Daz Scene Commander'
 __version__ = '1.0.0'

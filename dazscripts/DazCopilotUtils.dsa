@@ -158,6 +158,15 @@ function inheritsType( oObject, aTypeNames )
     return false;
 };
 
+function buildLabelListFromArray(aSourceList) {
+    var return_list=[];
+    for (var n = 0; n < aSourceList.length; n++) {
+        return_list.push(aSourceList[n].getLabel());
+    }
+    return return_list;
+}
+
+
 /*********************************************************************/
 /**
  * Retrieves a human-readable error string for a `DzFile` object based on its error state.
@@ -537,6 +546,9 @@ function log_debug(event_name, event_info) {
     log_event("DEBUG", event_name, event_info);
 }
 
+function log_success_event(event_source, message) {
+    log_error (event_source, {'status':'success', 'message': message});
+}
 
 function log_failure_event(event_source, message) {
     log_error (event_source, {'status':'failed', 'message': message});
@@ -711,6 +723,24 @@ function getViewportCamera() {
 
 /*********************************************************************/
 /**
+ * Retrieves the camera associated with the active 3D viewport.
+ * Relies on `MainWindow.getViewportMgr()`.
+ * @returns {DzCamera | null} The active viewport camera, or `null` if not found.
+ */
+function setViewportCamera(oCamera) {
+    var viewPortMgr = MainWindow.getViewportMgr();
+    if (!viewPortMgr) return null;
+    var activeVP = viewPortMgr.getActiveViewport();
+    if (!activeVP) return null;
+    var viewPort = activeVP.get3DViewport();
+    if (!viewPort) return null;
+    var camera = viewPort.setCamera(oCamera.getName());
+
+    return camera;
+}
+
+/*********************************************************************/
+/**
  * Finds a camera in the scene by its label (name).
  * Relies on `Scene.findCameraByLabel()`.
  * @param {string} camera_label - The label of the camera to find.
@@ -735,30 +765,60 @@ function getValidCameraList(oRenderConfig) {
     var aCameraListActual = [];
     var sCameraSelectionCriteria = oRenderConfig ? oRenderConfig['cameras'] : null;
 
-    if ((sCameraSelectionCriteria == "all_visible") || (sCameraSelectionCriteria == "pattern")) {
-        for (var n = 0; n < aCameraList.length; n++) {
-            var oCamera = aCameraList[n];
-            var sCameraName = oCamera.getLabel();
-            if (sCameraSelectionCriteria == "all_visible") {
+
+    switch (sCameraSelectionCriteria) {
+
+        case "all_visible":
+            for (var n = 0; n < aCameraList.length; n++) {
+                var oCamera = aCameraList[n];
+                var sCameraName = oCamera.getLabel();
                 if (oCamera.isVisible()) {
                     aCameraListActual.push(oCamera);
                 }
-            } else if (sCameraSelectionCriteria == "pattern") {
-                var test_pattern = oRenderConfig['camera_pattern'];
-                if (test_pattern) { // Ensure pattern exists
-                    var match_index  = sCameraName.search(new RegExp(test_pattern)); // Create RegExp from string
-                    if (match_index != -1) {
-                        aCameraListActual.push(oCamera);
-                    }
+            }
+            break;
+        case "viewport":
+            var viewportCam = getViewportCamera();
+            if (viewportCam) {
+                aCameraListActual.push (viewportCam);
+            }
+            break;
+        default:
+            for (var n = 0; n < aCameraList.length; n++) {
+                var oCamera = aCameraList[n];
+                var sCameraName = oCamera.getLabel();
+                var match_index  = sCameraName.search(new RegExp(sCameraSelectionCriteria)); // Create RegExp from string
+                if (match_index != -1) {
+                    aCameraListActual.push(oCamera);
                 }
             }
-        }
-    } else {
-        var viewportCam = getViewportCamera();
-        if (viewportCam) {
-            aCameraListActual.push (viewportCam);
-        }
+            break;
     }
+
+    // if ((sCameraSelectionCriteria == "all_visible") || (sCameraSelectionCriteria == "pattern")) {
+    //     for (var n = 0; n < aCameraList.length; n++) {
+    //         var oCamera = aCameraList[n];
+    //         var sCameraName = oCamera.getLabel();
+    //         if (sCameraSelectionCriteria == "all_visible") {
+    //             if (oCamera.isVisible()) {
+    //                 aCameraListActual.push(oCamera);
+    //             }
+    //         } else if (sCameraSelectionCriteria == "pattern") {
+    //             var test_pattern = oRenderConfig['camera_pattern'];
+    //             if (test_pattern) { // Ensure pattern exists
+    //                 var match_index  = sCameraName.search(new RegExp(test_pattern)); // Create RegExp from string
+    //                 if (match_index != -1) {
+    //                     aCameraListActual.push(oCamera);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // } else {
+    //     var viewportCam = getViewportCamera();
+    //     if (viewportCam) {
+    //         aCameraListActual.push (viewportCam);
+    //     }
+    // }
 
     return aCameraListActual;
 }
@@ -1074,7 +1134,11 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
         log_warning('execBatchRender', {'message': 'No valid cameras found to render based on configuration.'});
         close_script_utils();
         return;
-    }
+    } 
+
+
+    camera_str = JSON.stringify(buildLabelListFromArray(aCameraListActual));
+    log_info("execBatchRender", {'cameras': aCameraListActual.length, 'camera_names': camera_str});
 
     var iPriority = oRenderConfig['priority'] || 0; // Default priority
     var firstFrame = parseInt(oRenderConfig['first_frame']) || 0;
@@ -1109,8 +1173,8 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
 
         render_count = render_count + 1;
     	
-        var oCamera = aCameraListActual[n]; // Corrected: 'var'
-        var sCameraName = oCamera.getLabel(); // Corrected: 'var'
+        oCamera = aCameraListActual[n]; // Corrected: 'var'
+        sCameraName = oCamera.getLabel(); // Corrected: 'var'
 
         log_info('execBatchRender',
          {
@@ -1130,7 +1194,7 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
             var sJobName = sJobNamePattern.replace(/%s/g, sSceneName); // Use regex global replace
             sJobName = sJobName.replace(/%c/g, sCameraName.replace(/[^a-zA-Z0-9_-]/g, '_')); // Sanitize camera name for job/file name
             sJobName = sJobName.replace(/%f/g, "" + f);
-	    sJobName = sJobName.replace(/%r/g, "" + render_count);
+	        sJobName = sJobName.replace(/%r/g, "" + render_count);
 
 
             log_info ('execBatchRender',
@@ -1143,10 +1207,12 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
 
 
             var oResponse = null;
-            var oRenderOptions = oRenderMgr.getRenderOptions(); // Get fresh options for each render
+            var oRenderOptions = getDefaultLocalRenderOptions(oRenderMgr, oCamera);
+            //var oRenderOptions = oRenderMgr.getRenderOptions(); // Get fresh options for each render
 
             switch (sRenderTarget) {
                 case "local-to-file":
+                case "direct-file":
                     // var filepath = sSceneInfo.absoluteFilePath(); // Not used
                     // var basename = sSceneInfo.completeBaseName(); // Already have sSceneName
                     var sRenderFile = sOutputBasePath + "/" + sJobName + "." + sExtension; // Use sJobName
@@ -1154,6 +1220,7 @@ function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
                     break;
 
                 case "local-to-window":
+                case "viewport":
                     oResponse = execNewWindowRender(oRenderMgr, oRenderOptions, oCamera); // Pass camera
                     break;
 
@@ -1225,12 +1292,14 @@ function getDefaultLocalRenderOptions(oRenderMgr, oCamera) // Added oCamera para
     var oRenderOptions = oRenderMgr.getRenderOptions(); // Get a fresh copy
     oRenderOptions.isCurrentFrameRender = true;
     oRenderOptions.isAspectConstrained = true;
-    if (oCamera) {
+    if (oCamera != undefined) {
+        log_debug("getDefaultLocalRenderOptions", {'message': 'Setting camera to ' + oCamera.getLabel()});
+
         oRenderOptions.camera = oCamera; // Set the specific camera for this render
     }
     // oRenderOptions.renderImgToId = DzRenderOptions.Default; // Let specific functions set this
 
-    return [oRenderer, oRenderOptions]; // Corrected: oRenderOptions, not oRenderMgr
+    return oRenderOptions;
 }
 
 /**
@@ -1253,8 +1322,30 @@ function execLocalToFileRender(oRenderMgr, oRenderOptions, sRenderFile, oCamera)
     oRenderOptions.camera = oCamera; // Ensure camera is set on the passed options
     oRenderOptions.renderImgToId = DzRenderOptions.DirectToFile;
     oRenderOptions.renderImgFilename = sRenderFile;
+    
+    // This call doesn't seem to take all the render options into account, specifically the camera, so we have to 
+    // change the camera in the scene first, then do the render. Boo!
 
-    return oRenderMgr.doRender(oRenderOptions);
+    var currentCamera = getViewportCamera();
+    if (currentCamera == null) {
+        log_failure_event("execLocalFileRender", "Could not locate a vaid viewport camera!");
+        return;
+    }
+
+    setViewportCamera(oCamera);
+
+    var oError = oRenderMgr.doRender(oRenderOptions);
+
+    log_info("execLocalToFileRender", 
+        {
+            "target": "local file",
+            "camera": oCamera.getLabel(),
+            "output_file": sRenderFile,
+            "status": oError
+        }
+    )
+
+    setViewportCamera(currentCamera);
 }
 
 /**
@@ -1276,5 +1367,13 @@ function execNewWindowRender(oRenderMgr, oRenderOptions, oCamera) { // Added oCa
     oRenderOptions.camera = oCamera; // Ensure camera is set
     oRenderOptions.renderImgToId = DzRenderOptions.NewWindow;
 
-    return oRenderMgr.doRender(oRenderOptions);
+    var oError = oRenderMgr.doRender(oRenderOptions);
+
+     log_info("execNewWindowRender", 
+        {
+            "target": "new window",
+            "options": oRenderOptions,
+            "status": oError
+        }
+    )
 }

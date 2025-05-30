@@ -3,11 +3,9 @@ import json
 import os
 import shlex
 import subprocess
-from command_map import type_dict
-from CommonUtils import common_logger
 
-
-
+from CommonUtils import common_logger, type_dict, COLOR_RESET, COLOR_ARGS, COLOR_COMMAND
+import UserFunctions
 
 class CommandObject:
     def __init__(self, container, key, command:dict):
@@ -109,7 +107,7 @@ class CommandObject:
                 script_args = script["script-args"]
                 for arg in script_args:
                     kargs[arg]=script_vars[arg]
-                    callback=getattr(user_functions, script["script-callback"])
+                    callback=getattr(UserFunctions, script["script-callback"])
                     callback(**kargs)
 
 

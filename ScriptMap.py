@@ -1,4 +1,4 @@
-from CommonLogger import common_logger
+from CommonUtils import common_logger
 from RazorConfig import RazorConfig
 
 

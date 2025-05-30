@@ -8,7 +8,7 @@ from prompt_toolkit.history import FileHistory
 
 from CommandMap import CommandMap
 from CommandObject import CommandObject
-from CommonUtils import common_logger, COLOR_ARGS, COLOR_COMMAND, COLOR_RESET, console, default_razor_config
+from CommonUtils import common_logger, COLOR_COMMAND, COLOR_RESET, console, default_razor_config
 from RazorConfig import RazorConfig
 
 

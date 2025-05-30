@@ -6,17 +6,22 @@ var focus_script = null;
 
 function render_batch_exec(sSceneFile, render_config, render_target, output_base_path) {
 
-    if (sScenFile != null) {
-	// Load the given scene file
-	oError = Scene.loadScene(sSceneFile, DzScene.OpenNew);
-	
-	if (oError != Scene.DZ_NO_ERROR) {
-            log_error ("BatchRenderSU", {'status':'failed', 'message': 'Failed to load requested scene file: ' + sSceneFile + ': ' + JSON.stringify(oError)});
-	    return;
-	}
-    }
+    if (sSceneFile != null) {
+        // Load the given scene file
+        oError = Scene.loadScene(sSceneFile, DzScene.OpenNew);
+        
+        if (oError != Scene.DZ_NO_ERROR) {
+                log_error ("BatchRenderSU", {'status':'failed', 'message': 'Failed to load requested scene file: ' + sSceneFile + ': ' + JSON.stringify(oError)});
+            return;
+        }
+
+        log_success_event ("BatchRenderSU", 'Loaded scene file ' + sSceneFile);
     
-    log_info ("BatchRenderSU", {'status':'success', 'message': 'Loaded scene file ' + sSceneFile});
+    } else {
+
+        log_success_event ("BatchRenderSU", "Rendering current scene.");
+
+    }
     
     execBatchRender(render_config, render_target, output_base_path );
 }
@@ -51,7 +56,7 @@ function BatchRenderSU() {
     render_config = oScriptVars;
     render_config['iray_config'] = iray_config
 
-    if (scene_file_list.length == 0) {
+    if (scene_file_list == undefined) {
 	    render_batch_exec(null, render_config, render_target, output_base_path);
     } else {
         for (var y = 0; y < scene_file_list.length; y++) {

@@ -1,10 +1,8 @@
-from CommonLogger import common_logger
-
-
-import json
 import os
 from pathlib import Path
+import json
 
+from CommonUtils import common_logger
 
 class RazorConfig:
 
