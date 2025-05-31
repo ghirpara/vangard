@@ -214,6 +214,12 @@
 
     },
 
+     "inc-scene": {
+        "script-file": "SceneRollerSU.dsa",
+        "description": "Save the current scene file incrementing the file name with a numerical, incrementing, postfix.",
+        "args": []
+    },
+
     "product-list": {
         "script-file": "ListSceneProductsSU.dsa",
         "description": "List the product information for objects in the current scene",

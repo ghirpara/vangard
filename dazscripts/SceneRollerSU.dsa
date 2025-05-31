@@ -1,0 +1,30 @@
+
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function SceneRollerSU() {
+
+    sFunctionName = 'SceneRollerSU';
+
+    oScriptVars = init_script_utils (sFunctionName);
+
+    var next_scene_file_name = incrementedSceneFileName();
+
+    var oError = Scene.saveScene(next_scene_file_name);
+
+    if (oError != DzError.DZ_NO_ERROR) {
+        log_failure_event("SceneRollerSU", "Failed to save scene file: " + oError);
+    } else {
+        log_success_event("SceneRollerSU", "Saved scene with new filename: " + next_scene_file_name);
+    }
+
+
+    close_script_utils();
+}
+
+SceneRollerSU();
+
