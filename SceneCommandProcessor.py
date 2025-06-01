@@ -1,6 +1,8 @@
 import json
 import os
+import sys
 import shlex
+import subprocess
 
 from prompt_toolkit import prompt
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -10,7 +12,6 @@ from CommandMap import CommandMap
 from CommandObject import CommandObject
 from CommonUtils import common_logger, COLOR_COMMAND, COLOR_RESET, console, default_razor_config
 from RazorConfig import RazorConfig
-
 
 class SceneCommandProcessor:
     def __init__(self, command_file_name):
@@ -126,16 +127,21 @@ class SceneCommandProcessor:
                 if len(command) > 0:
 
                     if command.startswith('!'):
+                        parts=shlex.split(command[1:])
+                        command=parts[0]
+                        args=parts[1:]
 
-                        command=command[1:]
-                        parts=command.split(' ')
-                        if parts[0] == 'er' or parts[0] == 'end_record':
-                            self.__dump_command_record()
-                        elif parts[0] == 'sr' or parts[0] == 'start_record':
-                            self.__dump_command_record()
-                            self.__init_command_record(parts[1])
-                        elif parts[0] == 'lr' or parts[0] == 'load_record':
-                            self.__load_command_record(parts[1]+".rec")
+                        if command =='q' or command == 'quit' or command == 'exit':
+                            sys.exit(-1)
+                        elif command == 'er' or command == 'end_record':
+                            self.internal_command_end_record(self, args)
+                        elif command == 'sr' or command == 'start_record':
+                            self.internal_command_start_record(self, args)
+                        elif command == 'lr' or command == 'load_record':
+                            self.internal_command_load_record(self, args)
+                        elif command == 'iv' or command == 'image-viewer':
+                            self.internal_command_image_viewer(self, args)
+            
                     else:
 
                         self.__process_command(command)
@@ -148,3 +154,56 @@ class SceneCommandProcessor:
                 # Print any errors that occur
                 common_logger.error(f"Error: {e}")
                 continue
+
+    
+    def internal_command_end_record(self, args):
+        self.__dump_command_record()
+
+    def internal_command_start_record(self, args):
+        self.__dump_command_record()
+        self.__init_command_record(args[0])
+        
+    def internal_command_load_record(self, args):
+        self.__load_command_record(args[0]+".rec")
+
+    def internal_command_image_viewer(self, args):
+        if len(args) > 1:
+            ap=args[0]
+        else:
+            ap=None
+
+        self.launch_image_viewer(pattern=ap)
+
+    # --- Launching Logic ---
+    def launch_image_viewer(self, pattern=None):
+        """
+        Launches the image viewer script as a separate process.
+        """
+        
+        script_location = os.path.abspath(__file__)
+        VIEWER_SCRIPT_PATH = f'{script_location}/../image_viewer.py'
+
+        # Construct the command: [python_executable, script_path, --pattern, pattern_value]
+        command = [sys.executable, VIEWER_SCRIPT_PATH]
+        
+        if pattern:
+            pattern=pattern.replace("\"", "")
+            pattern=pattern.replace("\'", "")
+            command.extend(['--pattern', pattern])
+        
+        print(f"Launching image viewer with command: {' '.join(command)}")
+        
+        try:
+            # Use Popen to run the command without blocking the current script
+            # On Windows, creationflags=subprocess.DETACHED_PROCESS can sometimes help
+            # to truly detach the process, but Popen alone is usually sufficient for GUIs.
+            process = subprocess.Popen(command)
+            print(f"Image viewer process started with PID: {process.pid}")
+            return process
+        except FileNotFoundError:
+            print(f"Error: The script '{VIEWER_SCRIPT_PATH}' was not found.")
+            print("Please ensure VIEWER_SCRIPT_PATH is correctly set.")
+            return None
+        except Exception as e:
+            print(f"An error occurred while launching the viewer: {e}")
+            return None

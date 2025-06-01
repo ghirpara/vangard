@@ -20,7 +20,9 @@ class CommandObject:
 
         # Locate the actual location of the script file 
         self.script_location = None
-        self.__add_script_mapping(command['script-file'])
+
+        if ('script_file' in command):
+            self.__add_script_mapping(command['script-file'])
 
         # Create the parser object for the command
         parser = argparse.ArgumentParser(

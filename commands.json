@@ -268,12 +268,12 @@
         "args": [
             {
                 "name": [
-		    "-s",
-		    "--scene-files"
-		],
+                    "-s",
+                    "--scene-files"
+                ],
                 "description": "Pattern of scene files to load, including glob support. See README for examples",
                 "type": "str",
-		"required": false,
+		        "required": false,
                 "default": "_"
             },
             {
