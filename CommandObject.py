@@ -65,7 +65,7 @@ class CommandObject:
                 'command': self.key,
                 'pre-scripts': self.pre_scripts,
                 'post-scripts': self.post_scripts,
-                'script-loction': self.script_location
+                'script-location': self.script_location
             }
             return f"{data}"
 
@@ -114,17 +114,27 @@ class CommandObject:
                     callback(**kargs)
 
 
-    def exec_remote_script (self, script_vars:dict):
+    def exec_remote_script (self, script_vars:dict, daz_command_line:str|None):
         daz_root = self.container.config.get("daz_root")
         daz_args = self.container.config.get("daz_args")
+
+        if (daz_args is None):
+            daz_args = ""
+        if (daz_command_line is None):
+            daz_command_line = ""
+        elif (isinstance(daz_command_line, list)):
+            daz_command_line = " ".join(daz_command_line)
 
         if self.script_location is not None:
             mark_args="";
             if script_vars is not None:
                 mark_args += f'{json.dumps(script_vars)}'
 
-            common_logger.debug (f'Executing script file: root={daz_root} args={daz_args} {self.script_location} MA={mark_args}')
-            process = subprocess.Popen (f'"{daz_root}" {daz_args} -scriptArg \'{mark_args}\' {self.script_location}',
-                                        shell=False)
+            command_expanded = f'"{daz_root}" -scriptArg \'{mark_args}\' {daz_args} {daz_command_line} {self.script_location}'
+
+            common_logger.debug (f'Executing script file with command line: {command_expanded}') 
+
+            process = subprocess.Popen (command_expanded, shell=False)
+
         else:
             common_logger.error(f"No valid script file was presented for command: {self.key}")

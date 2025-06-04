@@ -30,11 +30,22 @@ class CommandMap:
         command = self.commands.get(key, None)
         script_args = None
         script_vars = None
+        daz_command_line = None
+
+        # Any elements of the command_line that occur after the string "--" should be parsed seperately 
+    
+        common_logger.debug(f"Pre-Parsing command line for key {key} as {command_line}")            
 
         if command is not None:
             try:
-                common_logger.debug(f"Parsing command line for key {key} as {command_line}")
-                script_args = command.parser.parse_args(command_line)
+                if '--' in command_line:
+                    sc_command_line  = command_line[:command_line.index("--")]
+                    daz_command_line = command_line[command_line.index("--")+1:]
+                else:
+                    sc_command_line  = command_line
+
+                common_logger.debug(f"Parsing command line for key {key} as {sc_command_line}")
+                script_args = command.parser.parse_args(sc_command_line)
                 script_vars = vars(script_args)
             except Exception as e:
                 common_logger.error(f"Failed to locate command for {key}: {str(e)}")
@@ -43,7 +54,7 @@ class CommandMap:
         else:
             common_logger.ingo(f"Could not identify command from command: key={key}, cli={command_line}")
 
-        return command, script_args, script_vars
+        return command, script_args, script_vars, daz_command_line
 
     def get_commands(self):
         return self.commands

@@ -31,6 +31,7 @@ class SceneCommandProcessor:
         command_object=None
         script_args=None
         script_vars=None
+        daz_command_line=None
 
         parts = shlex.split(command)
 
@@ -63,13 +64,13 @@ class SceneCommandProcessor:
         else:
 
             try:
-                command_object, script_args, script_vars = self.command_map.parse_command(key, parts[1:])
+                command_object, script_args, script_vars, daz_command_line = self.command_map.parse_command(key, parts[1:])
             except SystemExit as e:
                 command_object=None
                 script_args=None
                 script_vars=None
 
-        return command_object, script_args, script_vars
+        return command_object, script_args, script_vars, daz_command_line
 
 
     def __init_command_record(self, command):
@@ -89,25 +90,26 @@ class SceneCommandProcessor:
             record_file.close()
             self.record_current = None
 
-    def __exec_command(self, command_object, script_vars):
+    def __exec_command(self, command_object, script_vars, daz_command_line):
         command_object.exec_pre_command_scripts(script_vars)
-        command_object.exec_remote_script(script_vars)
+        command_object.exec_remote_script(script_vars, daz_command_line)
         command_object.exec_post_command_scripts(script_vars)
 
     def __process_command(self, command):
-        command_object, script_args, script_vars = self.parse_command (command)
+        command_object, script_args, script_vars, daz_command_line = self.parse_command (command)
 
         common_logger.debug ("Command processed = " + command)
         common_logger.debug (f"   command obj    = {command_object}")
         common_logger.debug (f"   args           = {script_args}")
         common_logger.debug (f"   vars           = {script_vars}")
+        common_logger.debug (f"   daz_cli        = {daz_command_line}")
 
         if command_object is not None:
 
             if self.record_current is not None:
                 self.record_command_list.append(command)
 
-            self.__exec_command(command_object, script_vars)
+            self.__exec_command(command_object, script_vars, daz_command_line)
 
     def process_loop(self):
         console.print("Welcome to the Daz Scene Commander CLI")
