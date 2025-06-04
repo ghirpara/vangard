@@ -738,6 +738,68 @@ function transformNodeRotate(oFromNode, fValue) {
 
 /*********************************************************************/
 /**
+ * Sets the arbitrary translation of a given node (or its skeleton if it's a `DzBone`).
+ * @param {DzNode} oFromNode - The node to translate. If it's a `DzBone`, its skeleton will be rotated.
+ * @param {DzNode} sAxis - The axis to translate against. Is one of 'x', 'y', or 'z'
+ * @param {number} fValue - The translation value in units for the Y-axis.
+ * @returns {void}
+ */
+function transformNodeTranslate(oFromNode, sAxis, fValue) {
+    var from_skeleton; // Corrected: declare variable
+
+    if (oFromNode.inherits("DzBone")) {
+        from_skeleton = oFromNode.getSkeleton();
+    } else {
+        from_skeleton = oFromNode;
+    }
+
+    if (!from_skeleton || !from_skeleton.getYRotControl) {
+        log_error('transformNodeRotate', { 'message': 'Invalid node or skeleton object, or missing YRotControl.' });
+        return;
+    }
+
+    fromX=from_skeleton.getXPosControl().getValue();
+    fromY=from_skeleton.getYPosControl().getValue();
+    fromZ=from_skeleton.getZPosControl().getValue();
+
+    switch (sAxis) {
+        case 'x':
+        case 'X':
+            from_skeleton.getXPosControl().setValue (fValue);
+            log_info("transformNodeTranslate", 
+                {
+                    'status': 'success', 
+                    'message': "X-translated object " + oFromNode.getLabel() + " from position X=" + fromX + " to X=" + fValue
+                }
+            )
+            break;
+        case 'y':
+        case 'Y':
+            from_skeleton.getYPosControl().setValue (fValue);
+            log_info("transformNodeTranslate", 
+                {
+                    'status': 'success', 
+                    'message': "Y-translated object " + oFromNode.getLabel() + " from position Y=" + fromY + " to Y=" + fValue
+                }
+            )
+            break;
+        case 'z':
+        case 'Z':
+            from_skeleton.getZPosControl().setValue (fValue);
+            log_info("transformNodeTranslate", 
+                {
+                    'status': 'success', 
+                    'message': "Z-translated object " + oFromNode.getLabel() + " from position Z=" + fromZ + " to Z=" + fValue
+                }
+            )
+            break;
+        default:
+            break;
+    }
+}
+
+/*********************************************************************/
+/**
  * Retrieves the camera associated with the active 3D viewport.
  * Relies on `MainWindow.getViewportMgr()`.
  * @returns {DzCamera | null} The active viewport camera, or `null` if not found.

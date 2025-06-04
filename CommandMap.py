@@ -22,6 +22,7 @@ class CommandMap:
             self.script_locations.append(alt)
 
         for key in command_file_object:
+            common_logger.debug(f"Generating command object {key}")
             command = command_file_object[key]
             self.commands[key]= CommandObject(self, key, command)
 

@@ -21,7 +21,8 @@ class CommandObject:
         # Locate the actual location of the script file 
         self.script_location = None
 
-        if ('script_file' in command):
+        if ('script-file' in command):
+      
             self.__add_script_mapping(command['script-file'])
 
         # Create the parser object for the command
@@ -115,14 +116,15 @@ class CommandObject:
 
     def exec_remote_script (self, script_vars:dict):
         daz_root = self.container.config.get("daz_root")
+        daz_args = self.container.config.get("daz_args")
 
         if self.script_location is not None:
             mark_args="";
             if script_vars is not None:
                 mark_args += f'{json.dumps(script_vars)}'
 
-            common_logger.debug (f'Executing script file: root={daz_root} {self.script_location} MA={mark_args}')
-            process = subprocess.Popen (f'"{daz_root}" -scriptArg \'{mark_args}\' {self.script_location}',
+            common_logger.debug (f'Executing script file: root={daz_root} args={daz_args} {self.script_location} MA={mark_args}')
+            process = subprocess.Popen (f'"{daz_root}" {daz_args} -scriptArg \'{mark_args}\' {self.script_location}',
                                         shell=False)
         else:
             common_logger.error(f"No valid script file was presented for command: {self.key}")

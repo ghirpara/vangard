@@ -25,6 +25,24 @@
             }
         ]
     },
+    "drop-object": {
+        "script-file": "DropObjectSU.dsa",
+        "description": "Drop one object on top of another, respecting bounding box bondaries.",
+        "args": [
+              {
+                "name": "source-node",
+                "description": "Label of the object to be dropped",
+                "type": "str",
+                "default": null
+            },
+              {
+                "name": "target-node",
+                "description": "Label of the object to be dropped onto",
+                "type": "str",
+                "default": null
+            }
+        ]
+    },
     "rotate-render": {
         "script-file": "CharacterRotateAndRenderSU.dsa",
         "description": "Rotate and render the selected character.",
