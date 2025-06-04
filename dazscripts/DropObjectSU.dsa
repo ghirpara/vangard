@@ -1,0 +1,46 @@
+
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function DropObjectSU() {
+
+    sFunctionName = 'DropObjectSU';
+
+    oScriptVars = init_script_utils (sFunctionName);
+
+    sSourceNode = oScriptVars['source-node'];
+    sTargetNode = oScriptVars['target-node'];
+
+    oSourceNode = Scene.findNodeByLabel(sSourceNode);
+    oTargetNode = Scene.findNodeByLabel(sTargetNode);
+
+    if (oSourceNode == null || oSourceNode == undefined) {
+        log_failure_event('DropObjectSU', "Could not locate source node with label: " + sSourceNode);
+        return;
+    }
+
+    if (oTargetNode == null || oTargetNode == undefined) {
+        log_failure_event('DropObjectSU', "Could not locate target node with label: " + sTargetNode);
+        return;
+    }
+
+
+    var oSourceBoundingBox = oSourceNode.getWSBoundingBox();
+    var oTargetBoundingBox = oTargetNode.getWSBoundingBox()
+
+    // Calculate the new position for the top object
+    var bottomTopY = oTargetBoundingBox.maxY;
+    var topHeight = oSourceBoundingBox.maxY - oSourceBoundingBox.minY;
+    var newTopY = bottomTopY + topHeight / 2;
+
+    transformNodeTranslate(oSourceNode, "y", newTopY);
+        
+    close_script_utils();
+}
+
+DropObjectSU();
+

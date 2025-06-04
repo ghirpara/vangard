@@ -1,0 +1,22 @@
+
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function GenericScriptSU() {
+
+    sFunctionName = 'GenericScriptSU';
+
+    oScriptVars = init_script_utils (sFunctionName);
+
+
+    // Add script code here
+        
+    close_script_utils();
+}
+
+GenericScriptSU();
+
