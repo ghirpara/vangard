@@ -10,7 +10,8 @@ For the command-line utility portion of the product, which is what the initial r
 
 ## vangard-cli
 
-This the primary command line utility that this project will deliver. It consists of a series of commands and scripts that I've developed over the time I've worked with DAZ Studio, mainly to address frustrations or limitations on my workflow, especially in the area of automating tasks that currently take a lot of clicks and manual, repetetive work. My goal is to continually aad to this list as I come across future improvements or additions to the workflow, as well as take input and requests from the community for things that they would love to see automated or scripted. 
+This the primary command line utility that this project will deliver. It consists of a series of commands and scripts that I've developed over the time I've worked with DAZ Studio, mainly to address frustrations or limitations on my workflow, especially in the area of automating tasks that currently take a lot of clicks and manual, repetetive work. My goal is to continually add to this list as I come across future improvements or additions to the workflow, as well as take input and requests from the community for things that they would love to see automated or scripted. 
+
 
 ## vangard-image-viewer
 
