@@ -53,7 +53,7 @@ function BatchRenderSU() {
 	    execBatchRenderScene(null, render_config, render_target, output_base_path);
     } else {
         for (var y = 0; y < scene_file_list.length; y++) {
-                scene_file = scene_file_list[y];
+            scene_file = scene_file_list[y];
             execBatchRenderScene(sSceneFile, render_config, render_target, output_base_path);
         }
     }
