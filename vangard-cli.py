@@ -14,8 +14,8 @@ import sys
 import argparse
 import logging
 from pathlib import Path
-from SceneCommandProcessor import SceneCommandProcessor
-from CommonUtils import common_logger
+from vangard.SceneCommandProcessor import SceneCommandProcessor
+from vangard.CommonUtils import common_logger
 
 
 __iname__ = 'Daz Scene Commander'

@@ -1,3 +1,17 @@
+"""
+    SceneCommandProcessor.py
+ 
+   
+ 
+    Author: G.Hirpara
+    Version: 1.0.0
+    Copyright (c) 2025 G.Hirpara
+  
+    LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+    USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+  
+"""
+
 import json
 import os
 import sys
@@ -8,10 +22,10 @@ from prompt_toolkit import prompt
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.history import FileHistory
 
-from CommandMap import CommandMap
-from CommandObject import CommandObject
-from CommonUtils import common_logger, COLOR_COMMAND, COLOR_RESET, console, default_razor_config
-from RazorConfig import RazorConfig
+from .CommandMap import CommandMap
+from .CommandObject import CommandObject
+from .CommonUtils import common_logger, COLOR_COMMAND, COLOR_RESET, console, default_razor_config
+from .RazorConfig import RazorConfig
 
 class SceneCommandProcessor:
     def __init__(self, command_file_name):

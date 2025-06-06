@@ -1,18 +1,17 @@
-/**********************************************************************
-
-	This script is provided as a hopefully useful utility for Daz script developers and general users. 
-	It based in part on existing Daz Script Documentation (see http://www.daz3d.com), 
-	the licensing text of which is included below and for which the same terms apply for this 
-	script as well:
-
-	The contents of this script, and\or any portion thereof, may only be used
-	in accordance with the following license:
- 
-	Creative Commons Attribution 3.0 Unported (CC BY 3.0)
-	- http://creativecommons.org/licenses/by/3.0
- 
- 
-**********************************************************************/
+/*
+ *   SingleSceneRendererSU.dsa
+ *
+ *
+ * 
+ *
+ *   Author: G.Hirpara
+ *   Version: 1.0.0
+ *   Copyright (c) 2025 G.Hirpara
+ * 
+ *   LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+ *   USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+ * 
+ */
 includeDir_oFILE = DzFile( getScriptFileName() );
 util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
 include (util_path);

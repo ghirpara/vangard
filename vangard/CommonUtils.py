@@ -1,16 +1,26 @@
-import os
+"""
+    CommonUtils.py
+ 
+   
+ 
+    Author: G.Hirpara
+    Version: 1.0.0
+    Copyright (c) 2025 G.Hirpara
+  
+    LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+    USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+  
+"""
+
 import sys
 import logging
 from logging import FileHandler
 from rich.logging import RichHandler
-from textual.app import App, ComposeResult
 from textual.widget import Widget
-from textual.widgets import Button, Label, RichLog
+from textual.widgets import RichLog
 
 from pathlib import Path
-from typing import Any
 from rich.console import Console # Import rich Console
-from rich.markdown import Markdown # Import rich Markdown renderer
 
 from prompt_toolkit.completion import NestedCompleter
 
@@ -34,6 +44,7 @@ common_logger.addHandler(file_handler)
 
 
 script_location = Path(__file__).resolve().parent     
+daz_script_location = Path(f"{__file__}/..").resolve()
 console=Console()        
 
 # --- ANSI Color Codes (Optional - for the 'You:' prompt if not using rich for it) ---

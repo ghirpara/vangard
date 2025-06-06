@@ -11,9 +11,10 @@
 	Daz 3D website:
  
 	- http://www.daz3d.com
+
+	Source: http://docs.daz3d.com/doku.php/public/software/dazstudio/4/referenceguide/scripting/api_reference/samples/metadata/list_products_used/start
  
 **********************************************************************/
-// Source: http://docs.daz3d.com/doku.php/public/software/dazstudio/4/referenceguide/scripting/api_reference/samples/metadata/list_products_used/start
 
 // DAZ Studio version 4.9.2.27
 // Define an anonymous function;

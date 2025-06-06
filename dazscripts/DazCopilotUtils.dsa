@@ -1,14 +1,21 @@
-/**
- * @fileOverview
+/*
+ *   DazCopilotUtils.dsa
+ *
  * This script provides a collection of utility functions for DAZ Studio scripting,
  * including debugging, localization, option setting, keyboard state management,
  * file operations, logging, and various DAZ Studio scene manipulation helpers
  * related to cameras, nodes, and rendering.
+ * 
  *
- * It is designed for use within the DAZ Studio scripting environment,
- * leveraging DAZ-specific objects and APIs like `DzFile`, `App`, `Scene`,
- * `qsTr`, `DzSettings`, etc.
+ *   Author: G.Hirpara
+ *   Version: 1.0.0
+ *   Copyright (c) 2025 G.Hirpara
+ * 
+ *   LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+ *   USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+ * 
  */
+
 
 /**
  * Represents the log file object. Initialized by `init_log`.
@@ -725,7 +732,7 @@ function getRandomValue(low_range, high_range) {
  * @param {number} fValue - The rotation value in degrees for the Y-axis.
  * @returns {void}
  */
-function transformNodeRotate(oFromNode, fValue, sAxis=Y_AXIS) {
+function transformNodeRotate(oFromNode, fValue, sAxis) {
     var from_skeleton; // Corrected: declare variable
 
     if (oFromNode.inherits("DzBone")) {

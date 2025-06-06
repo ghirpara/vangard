@@ -16,7 +16,7 @@ import glob
 import argparse
 
 class ImageViewerApp:
-    def __init__(self, root, initial_glob_pattern=None):
+    def __init__(self, root:str, initial_glob_pattern=str|None):
         self.root = root
         self.root.title("Image Viewer")
 

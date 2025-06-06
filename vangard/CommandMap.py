@@ -1,7 +1,24 @@
+"""
+    DropObjectSU.dsa
+ 
+   
+ 
+    Author: G.Hirpara
+    Version: 1.0.0
+    Copyright (c) 2025 G.Hirpara
+  
+    LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+    USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+  
+
+"""
+
+
+
 import json
 from pathlib import Path
-from CommandObject import CommandObject
-from CommonUtils import common_logger
+from .CommandObject import CommandObject
+from .CommonUtils import common_logger
 
 class CommandMap:
 
@@ -15,7 +32,7 @@ class CommandMap:
         script_dir = Path(__file__).resolve().parent
 
         self.script_locations = [
-            f"{script_dir}/dazscripts"
+            f"{script_dir}/../dazscripts"
         ]
 
         for alt in self.config.get("alt_script_locations", []):

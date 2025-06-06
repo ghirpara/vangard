@@ -1,11 +1,25 @@
+"""
+    CommandObject.py
+ 
+   
+ 
+    Author: G.Hirpara
+    Version: 1.0.0
+    Copyright (c) 2025 G.Hirpara
+  
+    LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+    USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+  
+"""
+
 import argparse
 import json
 import os
 import shlex
 import subprocess
 
-from CommonUtils import common_logger, type_dict, COLOR_RESET, COLOR_ARGS, COLOR_COMMAND
-import UserFunctions
+from .CommonUtils import common_logger, type_dict, COLOR_RESET, COLOR_ARGS, COLOR_COMMAND
+from .UserFunctions import *
 
 class CommandObject:
     def __init__(self, container, key, command:dict):
