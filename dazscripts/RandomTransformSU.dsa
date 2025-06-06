@@ -5,25 +5,63 @@ include (util_path);
 
 function RandomTransformSU(){
 
-    init_script_utils('RandomTransformSU');
 
-    transform_type = App.scriptArgs[0];
-    low_range      = App.scriptArgs[1];
-    high_range     = App.scriptArgs[2];
+    sFunctionName = 'RandomTransformSU';
+
+    init_script_utils(sFunctionName);
+
+    oScriptVars = init_script_utils (sFunctionName);
+
+    transform_rotate = oScriptVars['rotate'];
+    transform_xlate  = oScriptVars['translate'];
+    transform_scale  = oScriptVars['scale'];
+
+    low_range = oScriptVars['low-range'];
+    high_range = oScriptVars['high-range'];
+
+
+    // transform_type = App.scriptArgs[0];
+    // low_range      = App.scriptArgs[1];
+    // high_range     = App.scriptArgs[2];
 
     aSelectedNodes = Scene.getSelectedNodeList();
     for (var x = 0 ; x < aSelectedNodes.length; x++) {
         oSelectedNode = aSelectedNodes[x];
 
-        if (transform_type == "rotate") {
-            fRandomValue = getRandomRotationValue(low_range, high_range);
-            transformNodeRotate (oSelectedNode, fRandomValue);
-
+        if (transform_rotate) {
+            fRandomValue = getRandomValue(low_range, high_range);
+            transformNodeRotate (oSelectedNode, fRandomValue, Y_AXIS);
             log_info ("RandomTransformSU",
                 {
                     'request': {
                         'source': oSelectedNode.getLabel(),
                         'rotation': fRandomValue,
+                    }
+                }
+            );
+        }
+
+        if (transform_xlate) {
+            fRandomValue = getRandomValue(low_range, high_range);
+            transformNodeTranslate (oSelectedNode, fRandomValue);
+            log_info ("RandomTransformSU",
+                {
+                    'request': {
+                        'source': oSelectedNode.getLabel(),
+                        'translate': fRandomValue,
+                    }
+                }
+            );
+        }
+
+         if (transform_scale) {
+            fRandomValue = getRandomValue(low_range, high_range);
+            transformNodeScale (oSelectedNode, fRandomValue);
+            log_info ("RandomTransformSU",
+                {
+                    'request': {
+                        'source': oSelectedNode.getLabel(),
+                        'scale': fRandomValue,
                     }
                 }
             );

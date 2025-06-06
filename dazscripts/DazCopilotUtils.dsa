@@ -48,6 +48,11 @@ var s_bMetaPressed = false;
  */
 var s_logSourceName = "_DEFAULT_";
 
+
+X_AXIS = 0x00000001;
+Y_AXIS = 0x00000002;
+Z_AXIS = 0x00000003;
+
 /**
  * Retrieves the default log source name.
  * @returns {string} The current default log source name.
@@ -580,7 +585,7 @@ function log_debug(event_name, event_info) {
 }
 
 function log_success_event(event_source, message) {
-    log_error (event_source, {'status':'success', 'message': message});
+    log_info (event_source, {'status':'success', 'message': message});
 }
 
 function log_failure_event(event_source, message) {
@@ -694,12 +699,12 @@ function transferNodeTransforms(oToNode, oFromNode, bTranslate, bRotate, bScale)
 
 /*********************************************************************/
 /**
- * Generates a random rotation value within a specified range.
+ * Generates a random value within a specified range.
  * @param {number} low_range - The lower bound of the random range.
  * @param {number} high_range - The upper bound of the random range.
  * @returns {number} A random number between `low_range` and `high_range`.
  */
-function getRandomRotationValue(low_range, high_range) {
+function getRandomValue(low_range, high_range) {
     var output = Math.random() * (high_range - low_range) + low_range; // Corrected: ensure low_range is the minimum
 
     log_info ("DazCopilotUtils",
@@ -720,7 +725,7 @@ function getRandomRotationValue(low_range, high_range) {
  * @param {number} fValue - The rotation value in degrees for the Y-axis.
  * @returns {void}
  */
-function transformNodeRotate(oFromNode, fValue) {
+function transformNodeRotate(oFromNode, fValue, sAxis=Y_AXIS) {
     var from_skeleton; // Corrected: declare variable
 
     if (oFromNode.inherits("DzBone")) {
@@ -733,8 +738,24 @@ function transformNodeRotate(oFromNode, fValue) {
         log_error('transformNodeRotate', { 'message': 'Invalid node or skeleton object, or missing YRotControl.' });
         return;
     }
-    from_skeleton.getYRotControl().setValue (fValue);
+
+    switch (sAxis) {
+        case Y_AXIS:
+            from_skeleton.getYRotControl().setValue (fValue);
+            break;
+        case X_AXIS:
+            from_skeleton.getXRotControl().setValue (fValue);
+            break;
+        case Z_AXIS:
+            from_skeleton.getZRotControl().setValue (fValue);
+            break;
+        default:
+            log_failure_event('transformNodeRotate', 'Invalid rotation axis: ' + sAxis);
+            break;
+    }
 }
+
+
 
 /*********************************************************************/
 /**
@@ -744,7 +765,7 @@ function transformNodeRotate(oFromNode, fValue) {
  * @param {number} fValue - The translation value in units for the Y-axis.
  * @returns {void}
  */
-function transformNodeTranslate(oFromNode, sAxis, fValue) {
+function dropNodeToNode(oFromNode, sAxis, fValue) {
     var from_skeleton; // Corrected: declare variable
 
     if (oFromNode.inherits("DzBone")) {
@@ -1408,6 +1429,28 @@ function getDefaultLocalRenderOptions(oRenderMgr, oCamera) // Added oCamera para
     // oRenderOptions.renderImgToId = DzRenderOptions.Default; // Let specific functions set this
 
     return oRenderOptions;
+}
+
+function execBatchRenderScene(sSceneFile, render_config, render_target, output_base_path) {
+
+    if (sSceneFile != null) {
+        // Load the given scene file
+        oError = Scene.loadScene(sSceneFile, DzScene.OpenNew);
+        
+        if (oError != Scene.DZ_NO_ERROR) {
+                log_error ("BatchRenderSU", {'status':'failed', 'message': 'Failed to load requested scene file: ' + sSceneFile + ': ' + JSON.stringify(oError)});
+            return;
+        }
+
+        log_success_event ("BatchRenderSU", 'Loaded scene file ' + sSceneFile);
+    
+    } else {
+
+        log_success_event ("BatchRenderSU", "Rendering current scene.");
+
+    }
+    
+    execBatchRender(render_config, render_target, output_base_path );
 }
 
 /**

@@ -43,6 +43,24 @@
             }
         ]
     },
+     "rotate-random": {
+        "script-file": "CharacterRotateAndRenderSU.dsa",
+        "description": "Rotate and render the selected character.",
+        "args": [
+            {
+                "name": "object-name",
+                "description": "Label of the object to rotate prior to rendering",
+                "type": "str",
+                "default": null
+            },
+			{
+                "name": "lower",
+                "description": "Starting rotation (in degrees)",
+                "type": "int",
+                "default": 0
+            }
+        ]
+    },
     "rotate-render": {
         "script-file": "CharacterRotateAndRenderSU.dsa",
         "description": "Rotate and render the selected character.",

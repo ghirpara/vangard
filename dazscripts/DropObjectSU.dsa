@@ -37,7 +37,7 @@ function DropObjectSU() {
     var topHeight = oSourceBoundingBox.maxY - oSourceBoundingBox.minY;
     var newTopY = bottomTopY + topHeight / 2;
 
-    transformNodeTranslate(oSourceNode, "y", newTopY);
+    dropNodeToNode(oSourceNode, "y", newTopY);
         
     close_script_utils();
 }
