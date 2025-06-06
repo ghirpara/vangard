@@ -13,7 +13,6 @@
  * 
  */
 
-
 includeDir_oFILE = DzFile( getScriptFileName() );
 util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
 include (util_path);
