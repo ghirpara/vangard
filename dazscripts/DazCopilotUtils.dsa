@@ -170,6 +170,56 @@ function inheritsType( oObject, aTypeNames )
     return false;
 };
 
+/**
+ * Call the named action with the given settings object
+ * 
+ * @param {string} sClassName - The class name of the action to call
+ * @param {object} oSettings - A dictionary of settings as key/value pairs for the action, if the action requires settings
+ * 
+ */
+function triggerAction( sClassName, oSettings )
+{
+    // Get the action manager
+    var oActionMgr = MainWindow.getActionMgr();
+    // If we do not have an action manager
+    if( !oActionMgr ){
+        // We are done...
+        return;
+    }
+    
+    // Find the action we want
+    var oAction = oActionMgr.findAction( sClassName );
+    // If the action was not found
+    if( !oAction ){
+
+        log_failure_event(
+            "triggerAction",
+             text( "The \"%1\" action could not be found." ).arg( sClassName )
+        )
+        return;
+    }
+    
+    // If the action is disabled
+    if( !oAction.enabled ){
+
+        log_failure_event(
+            "triggerAction",
+            text( "The \"%1\" action is currently disabled." ).arg( oAction.text )
+        )
+        return;
+    }
+    
+    // If we have the necessary function (4.16.1.18) and we have settings
+    if( typeof( oAction.triggerWithSettings ) == "function" && oSettings ){
+        // Trigger execution of the action with the settings
+        oAction.triggerWithSettings( oSettings );
+    } else {
+        // Trigger execution of the action
+        oAction.trigger();
+    }
+};
+
+
 function buildLabelListFromArray(aSourceList) {
     var return_list=[];
     for (var n = 0; n < aSourceList.length; n++) {

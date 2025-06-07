@@ -1,4 +1,28 @@
 {
+    "action": {
+        "script-file": "ExecGenericActionSU.dsa",
+        "description": "Execute the specified action with optional settings as a series of key=value pairs separated by commas",
+        "args": [
+            {
+                "name": [
+                    "action-class"
+                ],
+                "type": "str",
+                "default": null,
+                "description": "Class name of the action to execute"
+            },
+            {
+                "name": [
+                    "-s",
+                    "--settings"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Settings for the action as a series of key=value pairs separated by commas"
+            }
+        ]
+    },
     "scene-render": {
         "script-file": "SingleSceneRendererSU.dsa",
         "description": "Direct render the current scene, or a new scene file if specified, to the given output file.",
