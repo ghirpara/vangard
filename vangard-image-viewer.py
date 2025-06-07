@@ -2,6 +2,7 @@ import sys
 import os
 import glob
 from pathlib import Path
+import argparse
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
@@ -10,7 +11,7 @@ from PySide6.QtWidgets import (
     QDialog, QLineEdit, QPushButton, QDialogButtonBox, QFileDialog, QMessageBox,
     QStatusBar
 )
-from PySide6.QtGui import QPixmap, QIcon, QImageReader, QAction, QImage
+from PySide6.QtGui import QPixmap, QIcon, QImageReader, QAction, QImage, QKeySequence # QKeySequence is still useful for ZoomOut
 from PySide6.QtCore import Qt, QSize, QFileSystemWatcher, QTimer
 
 # --- Initial Configuration ---
@@ -22,6 +23,11 @@ Path("images/subdir").mkdir(parents=True, exist_ok=True)
 
 THUMBNAIL_SIZE = QSize(100, 100)
 SUPPORTED_IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"]
+
+# --- Zoom Configuration ---
+ZOOM_STEP = 0.1
+MIN_ZOOM = 0.1
+MAX_ZOOM = 5.0
 
 
 class AddWatchDialog(QDialog):
@@ -61,14 +67,22 @@ class AddWatchDialog(QDialog):
 
 
 class ImageBrowser(QMainWindow):
-    def __init__(self):
+    def __init__(self, initial_patterns_to_monitor=None):
         super().__init__()
         self.setWindowTitle("Image Browser with File Monitoring")
         self.setGeometry(100, 100, 1200, 800)
 
-        self.monitor_patterns = list(INITIAL_MONITOR_PATTERNS)
+        if initial_patterns_to_monitor:
+            self.monitor_patterns = list(initial_patterns_to_monitor)
+        else:
+            self.monitor_patterns = list(INITIAL_MONITOR_PATTERNS)
+
         self.watched_dirs = set()
         self.current_displayed_image_path = None
+        self.original_pixmap = None
+        self.current_zoom_factor = 1.0
+
+        self._setup_zoom_actions()
 
         # --- Toolbar ---
         self.toolbar = QToolBar("Main Toolbar")
@@ -95,8 +109,6 @@ class ImageBrowser(QMainWindow):
         self.main_layout = QHBoxLayout(self.central_widget)
         self.splitter = QSplitter(Qt.Horizontal)
         self.main_layout.addWidget(self.splitter)
-
-        # Left Pane (Thumbnails) - Already correctly scrolling QListWidget
         self.left_pane_widget = QWidget()
         self.left_layout = QVBoxLayout(self.left_pane_widget)
         self.left_layout.setContentsMargins(0,0,0,0)
@@ -108,18 +120,11 @@ class ImageBrowser(QMainWindow):
         self.thumbnail_list_widget.itemClicked.connect(self.on_thumbnail_clicked)
         self.left_layout.addWidget(self.thumbnail_list_widget)
 
-        # Right Pane (Full Image)
         self.right_pane_scroll_area = QScrollArea()
-        # --- CHANGE 1: Disable widget resizing by the scroll area ---
         self.right_pane_scroll_area.setWidgetResizable(False)
-
         self.image_display_label = QLabel("Click a thumbnail to view image")
         self.image_display_label.setAlignment(Qt.AlignCenter)
-        # We still want it to expand if the scroll area is bigger than the image,
-        # but its *minimum* size should be the image size for scrolling.
-        # Default QSizePolicy.Preferred is usually fine here, but let's ensure vertical preferred too.
         self.image_display_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-
         self.right_pane_scroll_area.setWidget(self.image_display_label)
 
         self.splitter.addWidget(self.left_pane_widget)
@@ -158,6 +163,54 @@ class ImageBrowser(QMainWindow):
 
         self.initial_scan_and_watch()
 
+    def _setup_zoom_actions(self):
+        zoom_in_action = QAction("Zoom In", self)
+        # --- MODIFIED LINE for Zoom In ---
+        zoom_in_action.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_Equal))
+        zoom_in_action.triggered.connect(self.zoom_in)
+        self.addAction(zoom_in_action)
+
+        zoom_out_action = QAction("Zoom Out", self)
+        # QKeySequence.ZoomOut is standard for Ctrl+-
+        zoom_out_action.setShortcut(QKeySequence.ZoomOut)
+        # Or be explicit: zoom_out_action.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_Minus))
+        zoom_out_action.triggered.connect(self.zoom_out)
+        self.addAction(zoom_out_action)
+
+    def zoom_in(self):
+        if not self.original_pixmap or self.original_pixmap.isNull():
+            return
+        self.current_zoom_factor = min(MAX_ZOOM, self.current_zoom_factor + ZOOM_STEP)
+        self.apply_zoom()
+
+    def zoom_out(self):
+        if not self.original_pixmap or self.original_pixmap.isNull():
+            return
+        self.current_zoom_factor = max(MIN_ZOOM, self.current_zoom_factor - ZOOM_STEP)
+        self.apply_zoom()
+
+    def apply_zoom(self):
+        if not self.original_pixmap or self.original_pixmap.isNull():
+            self.image_display_label.setPixmap(QPixmap())
+            self.image_display_label.setText("No image loaded or image error.")
+            self.image_display_label.adjustSize()
+            return
+
+        original_size = self.original_pixmap.size()
+        new_width = int(original_size.width() * self.current_zoom_factor)
+        new_height = int(original_size.height() * self.current_zoom_factor)
+        new_width = max(1, new_width)
+        new_height = max(1, new_height)
+
+        scaled_pixmap = self.original_pixmap.scaled(
+            new_width, new_height,
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation
+        )
+        self.image_display_label.setPixmap(scaled_pixmap)
+        self.image_display_label.adjustSize()
+
+
     def _update_status_bar_info(self, file_path_str=None, image: QImage=None, img_format_str=None, error_message=None):
         if error_message:
             self.status_bar.showMessage(error_message, 5000)
@@ -189,13 +242,10 @@ class ImageBrowser(QMainWindow):
 
             metadata_parts = [f"{key}: {image.text(key)}" for key in image.textKeys()]
             metadata_display = "; ".join(metadata_parts) if metadata_parts else ""
-
             max_meta_len = 100
             if len(metadata_display) > max_meta_len:
                 metadata_display = metadata_display[:max_meta_len-3] + "..."
-
             self.sb_meta_label.setText(f"Meta: {metadata_display}" if metadata_display else "")
-
         else:
             self.sb_file_label.setText("")
             self.sb_file_label.setToolTip("")
@@ -208,12 +258,12 @@ class ImageBrowser(QMainWindow):
     def on_thumbnail_clicked(self, item: QListWidgetItem):
         file_path = item.data(Qt.UserRole)
         self.current_displayed_image_path = None
+        self.original_pixmap = None
 
         if not file_path:
             self.image_display_label.setText("Invalid item clicked.")
-            # --- CHANGE 2: Clear image and reset label size for blank state ---
-            self.image_display_label.setPixmap(QPixmap()) # Clear any previous image
-            self.image_display_label.adjustSize() # Adjust size to empty pixmap (minimal)
+            self.image_display_label.setPixmap(QPixmap())
+            self.image_display_label.adjustSize()
             self._update_status_bar_info()
             return
 
@@ -224,7 +274,6 @@ class ImageBrowser(QMainWindow):
             err_msg = reader.errorString() or "Cannot read image format."
             display_err = f"Cannot read image: {Path(file_path).name}\n({err_msg})"
             self.image_display_label.setText(display_err)
-            # --- CHANGE 2: Clear image and reset label size for error state ---
             self.image_display_label.setPixmap(QPixmap())
             self.image_display_label.adjustSize()
             self._update_status_bar_info(error_message=f"Read error: {err_msg}")
@@ -232,24 +281,21 @@ class ImageBrowser(QMainWindow):
 
         img_format_bytes = reader.format()
         img_format_str = img_format_bytes.data().decode(errors='replace').upper() if not img_format_bytes.isNull() and img_format_bytes.data() else "N/A"
-
         image = reader.read()
         if image.isNull():
             err_msg = reader.errorString() or "Unknown error loading image."
             display_err = f"Error loading image: {Path(file_path).name}\n({err_msg})"
             self.image_display_label.setText(display_err)
-            # --- CHANGE 2: Clear image and reset label size for error state ---
             self.image_display_label.setPixmap(QPixmap())
             self.image_display_label.adjustSize()
             self._update_status_bar_info(error_message=f"Load error: {err_msg}")
             return
 
-        # Success path
-        pixmap = QPixmap.fromImage(image)
-        self.image_display_label.setPixmap(pixmap)
-        # --- CHANGE 2: Explicitly adjust label size after setting pixmap ---
+        pixmap_for_display = QPixmap.fromImage(image)
+        self.original_pixmap = pixmap_for_display
+        self.current_zoom_factor = 1.0
+        self.image_display_label.setPixmap(self.original_pixmap)
         self.image_display_label.adjustSize()
-
         self.current_displayed_image_path = file_path
         self._update_status_bar_info(file_path_str=file_path, image=image, img_format_str=img_format_str)
 
@@ -346,6 +392,7 @@ class ImageBrowser(QMainWindow):
 
     def initial_scan_and_watch(self):
         print("Performing initial scan and setting up watchers...")
+        print(f"Monitoring patterns: {self.monitor_patterns}")
         self.scan_directories(self.monitor_patterns)
         paths_to_add_to_watcher = set()
         for pattern in self.monitor_patterns:
@@ -359,7 +406,7 @@ class ImageBrowser(QMainWindow):
         if paths_to_add_to_watcher:
             print(f"Initially watching: {list(paths_to_add_to_watcher)}")
             self.file_watcher.addPaths(list(paths_to_add_to_watcher))
-        else: print("No valid initial directories to watch.")
+        else: print("No valid initial directories to watch based on current patterns.")
 
     def on_directory_changed(self, path_str: str):
         self.changed_dir_path = Path(path_str)
@@ -400,9 +447,28 @@ class ImageBrowser(QMainWindow):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Image Browser with File Monitoring.")
+    parser.add_argument(
+        'cli_patterns',
+        metavar='PATTERN',
+        type=str,
+        nargs='*',
+        help='Optional glob patterns to monitor (e.g., "mydir/*.jpg" "anotherdir/**/*"). '
+             'Overrides default patterns if provided.'
+    )
+    args = parser.parse_args()
+
+    if args.cli_patterns:
+        patterns_for_browser = args.cli_patterns
+        print(f"Using command-line patterns: {patterns_for_browser}")
+    else:
+        patterns_for_browser = INITIAL_MONITOR_PATTERNS
+        print(f"No command-line patterns provided, using default: {patterns_for_browser}")
+
     app = QApplication(sys.argv)
     if hasattr(Qt, 'AA_EnableHighDpiScaling'): QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     if hasattr(Qt, 'AA_UseHighDpiPixmaps'): QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-    window = ImageBrowser()
+
+    window = ImageBrowser(initial_patterns_to_monitor=patterns_for_browser)
     window.show()
     sys.exit(app.exec())
