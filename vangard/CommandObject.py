@@ -18,6 +18,8 @@ import os
 import shlex
 import subprocess
 
+import vangard
+
 from .CommonUtils import common_logger, type_dict, COLOR_RESET, COLOR_ARGS, COLOR_COMMAND
 from .UserFunctions import *
 
@@ -124,8 +126,11 @@ class CommandObject:
                 script_args = script["script-args"]
                 for arg in script_args:
                     kargs[arg]=script_vars[arg]
-                    callback=getattr(UserFunctions, script["script-callback"])
-                    callback(**kargs)
+                    callback=getattr(vangard.UserFunctions, script["script-callback"])
+                    rv=callback(**kargs)
+                    if arg in rv:
+                        print (f"#### TEST RV={rv}")
+                        script_vars[arg]=rv[arg]
 
 
     def exec_remote_script (self, script_vars:dict, daz_command_line:str|None):

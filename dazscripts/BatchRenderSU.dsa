@@ -27,7 +27,7 @@ function BatchRenderSU() {
 
     
     // Identify the type of batch render we're interested in 
-    scene_file_list    = oScriptVars['scene-file-list'];
+    scene_file_list    = oScriptVars['scene_files'];
     render_target      = oScriptVars['target'];
     output_base_path   = oScriptVars['output-path'];
     iray_config        = {}
@@ -49,12 +49,19 @@ function BatchRenderSU() {
     render_config = oScriptVars;
     render_config['iray_config'] = iray_config
 
+    log_info (
+    	"BatchRenderSU",
+	{
+	    'scene_file_list': scene_file_list
+	}
+    )
+
     if (scene_file_list == undefined) {
 	    execBatchRenderScene(null, render_config, render_target, output_base_path);
     } else {
         for (var y = 0; y < scene_file_list.length; y++) {
             scene_file = scene_file_list[y];
-            execBatchRenderScene(sSceneFile, render_config, render_target, output_base_path);
+            execBatchRenderScene(scene_file, render_config, render_target, output_base_path);
         }
     }
     close_script_utils();

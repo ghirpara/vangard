@@ -18,11 +18,18 @@ from pathlib import Path
 import os.path
 import time
 
+from .CommonUtils import common_logger
+
 def extract_glob_to_list(scene_files):
-    if (scene_files == "_"):
-        return []
-    else:
-        return glob.glob(scene_files, recursive=True)
+    rv = {}
+    globout = []
+    if (scene_files != "_"):
+        globout = glob.glob(scene_files, recursive=True)
+
+    common_logger.debug(f"Extracted glob set = {globout}")
+
+    rv['scene_files'] = globout
+    return rv
 
 def process_product_list_reset(target_file):
     print (f"Attempt to unlink file {target_file}")

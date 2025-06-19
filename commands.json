@@ -23,6 +23,23 @@
             }
         ]
     },
+
+    "save-content-item": {
+        "script-file": "SaveSelectedContentSU.dsa",
+        "description": "Save the selected items in the content library to the specified target location",
+        "args": [
+            {
+                "name": [
+                    "target-dir"
+                ],
+                "type": "str",
+                "default": null,
+                "description": "Location to save content item to"
+            }
+        ]
+    },
+
+
     "scene-render": {
         "script-file": "SingleSceneRendererSU.dsa",
         "description": "Direct render the current scene, or a new scene file if specified, to the given output file.",
