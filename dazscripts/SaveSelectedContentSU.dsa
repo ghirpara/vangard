@@ -1,0 +1,67 @@
+/*
+ *   SaveSelectedContentSU.dsa
+ *
+ *
+ * 
+ *
+ *   Author: G.Hirpara
+ *   Version: 1.0.0
+ *   Copyright (c) 2025 G.Hirpara
+ * 
+ *   LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+ *   USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+ * 
+ */
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function SaveSelectedContentSU() {
+
+    sFunctionName = 'SaveSelectedContentSU';
+
+    oScriptVars = init_script_utils (sFunctionName);
+
+    oTargetDir = oScriptVars['target-dir'];
+
+
+    // Add script code here
+
+    var oPaneMgr = MainWindow.getPaneMgr();
+    var oPane = oPaneMgr.findPane("DzContentLibraryPane");
+    if( oPane ) { 
+        var aAssets = oPane.getSelectedAssets(); 
+        var sAbsFilePath; 
+        var oAsset, oFileInfo; 
+
+        log_info("SaveSelectedContentSU", 
+            {
+                'pane': oPane,
+                'asset_count': aAssets.length
+            }
+        );
+
+        
+        for( var i = 0; i < aAssets.length; i += 1 ) {  
+            oAsset = aAssets[ i ];  
+            sAbsFilePath = oAsset.getAsLocalFile();  
+
+            log_info(
+                'SaveSelectedContentSU',
+                {
+                    'filepath': sAbsFilePath
+                }
+            )
+        }
+    } else {
+        log_failure_event("SaveSelectedContentSU", "No DzContentLibraryPane object found");
+    }
+        
+    close_script_utils();
+}
+
+SaveSelectedContentSU();
+
