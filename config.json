@@ -1,0 +1,488 @@
+{
+    "action": {
+        "script-file": "ExecGenericActionSU.dsa",
+	"handler_class": "vangard.commands.ExecGenericActionSU.ExecGenericActionSU",
+        "help": "Execute the specified action with optional settings as a series of key=value pairs separated by commas",
+        "arguments": [
+            {
+                "names": [
+                    "action-class"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Class name of the action to execute"
+            },
+            {
+                "names": [
+                    "-s",
+                    "--settings"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Settings for the action as a series of key=value pairs separated by commas"
+            }
+        ]
+    },
+
+    "lora-trainer-prep": {
+        "script-file": "SingleSceneRendererSU.dsa",
+	"handler_class": "vangard.commands.SingleSceneRendererSU.SingleSceneRendererSU",
+        "help": "Render a matrixed serie of images suitable for LORA training.",
+        "arguments": [
+            {
+                "names": [
+                    "scene-files"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "A glob pattern that identifies the scene files to load. Each scene file should include a single model which has the hair and clothing applied"
+            },
+            {
+                "names": [
+                    "matrix-config"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Path to config file defining the render matrix of shots x poses x expressions"
+            }
+        ]
+    },
+
+    "save-content-item": {
+        "script-file": "SaveSelectedContentSU.dsa",
+	"handler_class": "vangard.commands.SaveSelectedContentSU.SaveSelectedContentSU",
+        "help": "Save the selected items in the content library to the specified target location",
+        "arguments": [
+            {
+                "names": [
+                    "target-dir"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Location to save content item to"
+            }
+        ]
+    },
+
+
+    "scene-render": {
+        "script-file": "SingleSceneRendererSU.dsa",
+	"handler_class": "vangard.commands.SingleSceneRendererSU.SingleSceneRendererSU",
+        "help": "Direct render the current scene, or a new scene file if specified, to the given output file.",
+        "arguments": [
+            {
+                "names": [
+                    "-s",
+                    "--scene-file"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Name of the scene file to load."
+            },
+            {
+                "names": [
+                    "-o",
+                    "--output-file"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Path to output file to save to"
+            }
+        ]
+    },
+    "drop-object": {
+        "script-file": "DropObjectSU.dsa",
+	"handler_class": "vangard.commands.DropObjectSU.DropObjectSU",
+        "help": "Drop one object on top of another, respecting bounding box bondaries.",
+        "arguments": [
+              {
+                "names": ["source-node"],
+                "help": "Label of the object to be dropped",
+                "type": "str",
+                "default": null
+            },
+              {
+                "names": ["target-node"],
+                "help": "Label of the object to be dropped onto",
+                "type": "str",
+                "default": null
+            }
+        ]
+    },
+     "rotate-random": {
+         "script-file": "CharacterRotateAndRenderSU.dsa",
+	 "handler_class": "vangard.commands.CharacterRotateAndRenderSU.CharacterRotateAndRenderSU",
+        "help": "Rotate and render the selected character.",
+        "arguments": [
+            {
+                "names": ["object-name"],
+                "help": "Label of the object to rotate prior to rendering",
+                "type": "str",
+                "default": null
+            },
+			{
+                "names": ["lower"],
+                "help": "Starting rotation (in degrees)",
+                "type": "int",
+                "default": 0
+            }
+        ]
+    },
+    "rotate-render": {
+        "script-file": "CharacterRotateAndRenderSU.dsa",
+	"handler_class": "vangard.commands.CharacterRotateAndRenderSU.CharacterRotateAndRenderSU",
+        "help": "Rotate and render the selected character.",
+        "arguments": [
+            {
+                "names": ["object-name"],
+                "help": "Label of the object to rotate prior to rendering",
+                "type": "str",
+                "default": null
+            },
+			{
+                "names": ["lower"],
+                "help": "Starting rotation (in degrees)",
+                "type": "int",
+                "default": 0
+            },
+            {
+                "names": ["upper"],
+                "help": "Ending rotation (in degrees). rotation-start must be smaller than rotation-end",
+                "type": "int",
+                "default": 180
+            },
+            {
+                "names": ["slices"],
+                "help": "How many rotations between start and end to rotate. If set to zero, only render, do not rotate.",
+                "type": "int                                                ",
+                "default": null
+            },
+          
+            {
+                "names": [
+                    "-o",
+                    "--output-file"
+                ],
+                "help": "Absolute path to directory to render images in. Default is to generate one from the scene file name.",
+                "type": "str",
+                "default": null
+            },
+			{
+                "names": [
+                    "-s",
+                    "--skip-render"
+                ],
+                "help": "Flag whether to render or the rotated character or not. Setting this flag skips the rendering step.",
+                "action": "store_true",
+                "default": false
+            }
+        ]
+    },
+    "transform-copy": {
+        "script-file": "CopyTransformObjectSU.dsa",
+	"handler_class": "vangard.commands.CopyTransformObjectSU.CopyTransformObjectSU",
+        "help": "Perform translate, rotate, and/or scale operations on target node to match the transforms on the target node. ",
+        "arguments": [
+            {
+                "names": ["source-node"],
+                "help": "Node to translate from",
+                "type": "str",
+                "default": null
+            },
+            {
+                "names": ["target-node"],
+                "help": "Node to translate to",
+                "type": "str",
+                "default": null
+            },
+            {
+                "names": [
+                    "-r",
+                    "--rotate"
+                ],
+                "help": "Apply the rotation transform",
+                "action": "store_true",
+                "default": null
+            },
+            {
+                "names": [
+                    "-t",
+                    "--translate"
+                ],
+                "help": "Apply the translation transform",
+                "action": "store_true",
+                "default": null
+            },
+            {
+                "names": [
+                    "-s",
+                    "--scale"
+                ],
+                "help": "Apply the scaling transform",
+                "action": "store_true",
+                "default": null
+            },
+            {
+                "names": [
+                    "-a",
+                    "--all"
+                ],
+                "help": "Apply rotation, translation, and scaling trasforms",
+                "action": "store_true",
+                "default": null
+            }
+        ]
+    },
+    "create-cam": {
+        "script-file": "CreateBasicCameraSU.dsa",
+	"handler_class": "vangard.commands.CreateBasicCameraSU.CreateBasicCameraSU",
+        "help": "Create a perspective camera with given name and camera type as parameters to generate the name of the camera along with the selected node label.",
+        "arguments": [
+            {
+                "names": ["cam-name"],
+                "help": "Name of the camera",
+                "type": "str",
+                "default": null
+            },
+            {
+                "names": ["cam-class"],
+                "help": "Class (type) of camera",
+                "type": "str",
+                "default": null
+            },
+            {
+                "names": [
+                    "-f",
+                    "--focus"
+                ],
+                "help": "If true, turn DOF on the new camera",
+                "action": "store_true",
+                "default": false
+            }
+        ]
+    },
+    "create-group": {
+        "script-file": "CreateGroupNodeSU.dsa",
+	"handler_class": "vangard.commands.CreateGroupNodeSU.CreateGroupNodeSU",
+        "help": "Group the selected nodes in the scene to the name specified.",
+        "arguments": [
+            {
+                "names": ["group-name"],
+                "help": "Name of the new group.",
+                "type": "str",
+                "default": null
+            }
+        ]
+    },
+    "copy-camera": {
+        "script-file": "CopyNamedCameraToCurrentCameraSU.dsa",
+	"handler_class": "vangard.commands.CopyNamedCameraToCurrentCameraSU.CopyNamedCameraToCurrentCameraSU",
+        "help": "Copy the specified camera (by label) to the specified target camera, or the current viewport camera if target not specified",
+        "arguments": [
+            {
+                "names": ["-s", "--source-camera"],
+                "help": "Camera to copy from",
+                "type": "str",
+                "default": null
+            },
+            {
+                "names": ["-t", "--target-camera"],
+                "help": "Camera to copy to (optional)",
+                "type": "str",
+                "default": null
+            }
+        ]
+    },
+
+    "apply-pose": {
+
+        "script-file": "ApplyGenericPoseSU.dsa",
+	"handler_class": "vangard.commands.ApplyGenericPoseSU.ApplyGenericPoseSU",
+        "help": "Apply the given named posed as pose file to the currently selected node or specified node",
+        "arguments": [
+            {
+                "names": ["pose-file"],
+                "help": "Absolute path to the pose file to be applied",
+                "type": "str",
+                "default": null
+            },
+            {
+                "names": ["-t", "--target-node"],
+                "help": "Label of the node to apply the pose to. If not specified, apply to the currently selected node.",
+                "type": "str",
+                "default": null
+            }
+        ]
+
+    },
+
+     "inc-scene": {
+         "script-file": "SceneRollerSU.dsa",
+	 "handler_class": "vangard.commands.SceneRollerSU.SceneRollerSU",
+        "help": "Save the current scene file incrementing the file name with a numerical, incrementing, postfix.",
+        "arguments": []
+    },
+
+    "product-list": {
+        "script-file": "ListSceneProductsSU.dsa",
+	"handler_class": "vangard.commands.ListSceneProductsSU.ListSceneProductsSU",
+        "help": "List the product information for objects in the current scene",
+        "pre-scripts": [
+            {
+                "script-callback": "process_product_list_reset",
+                "script-args": ["target_file"]
+            }
+        ],
+        "post-scripts": [
+            {
+                "script-callback": "process_product_list",
+                "script-args": ["target_file"]
+            }
+        ],
+        "arguments": [
+            {
+                "names": ["-t", "--target-file"],
+                "help": "File to write output information to",
+                "type": "str",
+                "default": "C:/Temp/products.json"
+            },
+            {
+                "names": ["-n", "--node-context"],
+                "help": "If specified, present the output in the context of nodes. Otherwise the default is to present output in the context of products.",
+                "action": "store_true",
+                "default": false
+            },
+            {
+                "names": ["-s", "--selected-only"],
+                "help": "Only identify products for the currently selected node.",
+                "action": "store_true",
+                "default": false
+            }
+        ]
+    },
+    "batch-render": {
+        "script-file": "BatchRenderSU.dsa",
+	"handler_class": "vangard.commands.BatchRenderSU.BatchRenderSU",
+        "help": "Given a pattern of scene files, load each one and render it to the target location (default is studio-iray) with the given output file pattern",
+        "pre-scripts": [
+            {
+                "script-callback": "extract_glob_to_list",
+                "script-args": ["scene_files"]
+            }
+        ],
+        "arguments": [
+            {
+                "names": [
+                    "-s",
+                    "--scene-files"
+                ],
+                "help": "Pattern of scene files to load, including glob support. See README for examples",
+                "type": "str",
+                "default": "_"
+            },
+            {
+                "names": [
+                    "-o",
+                    "--output-path"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Path to directory where output files are to be written. If not specified, use the location of the scene file."
+            },
+            {
+                "names": [
+                    "-t",
+                    "--target"
+                ],
+                "type": "str",
+                "default": "direct-file",
+                "help": "Target of the render. Allowed values are local-to-file, local-to-window, or iray-server-bridge"
+            },
+            {
+                "names": [
+                    "-r",
+                    "--resolution"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Resolution to render, overriding the resolution of the scene file, in WxH format (e.g. 1920x1080)"
+            },
+            {
+                "names": [
+                    "-c",
+                    "--cameras"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Cameras to render for. Can be one of 'all_visible', 'viewport', or a pattern that maps to one or more visible cameras"
+            },
+             {
+                "names": [
+                    "-j",
+                    "--job-name-pattern"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Pattern to use for naming job names or render output files. In the pattern, %s refers to the scene name, %%c the camera name, %%f the frame number, and %%r the render count"
+             },
+            {
+                "names": [
+                    "-f",
+                    "--frames"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Frames to render. Comma-separated list of frames that can include ranges and range patterns. See README for full detail and example."
+            },
+            {
+                "names": [
+                    "--iray-server"
+                ],
+                "type": "str",
+                "default": "127.0.0.1",
+                "help": "For target iray-server the IP address or hostname of the iRay server/master to use."
+            },
+            {
+                "names": [
+                    "--iray-protocol"
+                ],
+                "type": "str",
+                "default": "http",
+                "help": "Sets the http protocol to use. Allowed values are http or https."
+            },
+            {
+                "names": [
+                    "--iray-port"
+                ],
+                "type": "str",
+                "default": "9090",
+                "help": "For target iray-server the TCP port of the iRay server/master."
+            },
+            {
+                "names": [
+                    "--iray-user"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "For target iray-server the username to connect to the iRay server/master. Must be specified here or in config file specified by --iray-config-file"
+            },
+            {
+                "names": [
+                    "--iray-password"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "For target iray-server the password to connect to the iRay server/master. Must be specified here or in config file specified by --iray-config-file"
+            },
+            {
+                "names": [
+                    "--iray-config-file"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "For target iray-server the configuration options file to use for iRay server/master configuration. Values in this file can be overridden by additional command line arguments"
+            }
+
+        ]
+    }
+}
