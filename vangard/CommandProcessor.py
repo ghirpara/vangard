@@ -3,21 +3,41 @@ import json
 import shlex
 import sys
 import importlib
+import os # To find a good path for history file
+
 from .CommonUtils import common_logger
+
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit.completion import FuzzyCompleter, WordCompleter
 
 class CommandProcessor:
     """
     A generic command processor that loads command definitions and handlers
-    dynamically from a configuration file.
+    dynamically from a configuration file. Includes command history and autocompletion.
     """
 
     def __init__(self, config_path):
         self.config = self._load_config(config_path)
-        # Application state is managed here, not with globals
         self.app_state = {
             'db': {},
             'next_id': 1
         }
+
+        # --- Setup for prompt_toolkit ---
+        self.history = FileHistory(os.path.expanduser('~/.app_history'))
+        self.auto_suggest = AutoSuggestFromHistory()
+        self.completer = self._create_completer()
+
+        self.session = PromptSession(
+            history=self.history,
+            auto_suggest=self.auto_suggest,
+            completer=self.completer,
+            reserve_space_for_menu=4, # Give space for completion suggestions
+        )
+        # --- End of prompt_toolkit setup ---
+
         self.parser_cache={}
         self.command_cache={}
 
@@ -39,11 +59,25 @@ class CommandProcessor:
         if command_class is not None:
             self.command_cache[command_name]=command_class
 
-        return command_class
+        return command_class        
+
+    def _create_completer(self):
+        """
+        Builds a completer object from the commands and arguments in the config.
+        """
+        completion_words = set(self.config.keys()) # Start with command names
+
+        # Add all argument flags (e.g., '--all', '-p', '--priority')
+        for command_config in self.config.values():
+            for arg_config in command_config.get('arguments', []):
+                completion_words.update(arg_config.get('names', []))
         
+        # WordCompleter is simple and fast. FuzzyCompleter is more user-friendly.
+        word_completer = WordCompleter(list(completion_words), ignore_case=True)
+        return FuzzyCompleter(word_completer)
 
     def _load_config(self, config_path):
-        """Loads the command configuration from a JSON file."""
+        # (This method is identical to the previous version)
         try:
             with open(config_path, 'r') as f:
                 return json.load(f)
@@ -55,22 +89,16 @@ class CommandProcessor:
             sys.exit(1)
 
     def _create_command_instance(self, command_name):
-        """
-        Dynamically imports and instantiates a command handler class.
-        """
+        # (This method is identical to the previous version)
         cmd_config = self.config.get(command_name, {})
         handler_path = cmd_config.get('handler_class')
-
         if not handler_path:
             common_logger.warning(f"Warning: No handler_class configured for command '{command_name}'.")
             return None
-
         try:
-            # Split the path into module and class name (e.g., 'commands.add.AddTaskCommand')
             module_path, class_name = handler_path.rsplit('.', 1)
             module = importlib.import_module(module_path)
             CmdClass = getattr(module, class_name)
-            # Instantiate the command, passing the application state
             return CmdClass(class_name, self.app_state, cmd_config)
         except (ImportError, AttributeError) as e:
             common_logger.error(f"Error loading handler '{handler_path}': {e}")
@@ -98,40 +126,44 @@ class CommandProcessor:
 
     def _display_help(self):
         # (This method is identical to the previous version)
-        common_logger.info("Available commands:")
+        common_logger.print("Available commands:")
         for command, config in self.config.items():
-            common_logger.info(f"  {command:<15} {config.get('help', 'No description available.')}")
-        common_logger.info("\nType 'help <command>' for more information on a specific command.")
-        common_logger.info("Type 'exit' or 'quit' to close the application.")
+            common_logger.print(f"  {command:<15} {config.get('help', 'No description available.')}")
+        common_logger.print("\nUse Up/Down arrows for history. Use Tab for autocompletion.")
+        common_logger.print("Type 'help <command>' for more information on a specific command.")
+        common_logger.print("Type 'exit' or 'quit' to close the application.")
 
     def run(self):
         """Starts the main loop to read and process commands."""
-        common_logger.info("Welcome! Type 'help' for available commands or 'exit' to quit.")
+        common_logger.print("Welcome! Type 'help' for available commands or 'exit' to quit.")
         while True:
             try:
-                raw_input = input("> ")
+                # --- MODIFIED LINE: Use the prompt session instead of input() ---
+                raw_input = self.session.prompt("> ")
+                # --- END OF MODIFICATION ---
+
                 if not raw_input:
                     continue
 
                 tokens = shlex.split(raw_input)
+                if not tokens: # Handle empty input after shlex split
+                    continue
                 command = tokens[0].lower()
                 args = tokens[1:]
 
                 if command in ['exit', 'quit']:
-                    common_logger.info("Exiting.")
+                    print("Exiting.")
                     break
                 
                 if command == 'help':
                     if args:
                         parser = self.get_parser(args[0])
-                        #parser = self._create_parser(args[0])
                         if parser: parser.print_help()
                         else: common_logger.error(f"Error: Unknown command '{args[0]}'")
                     else:
                         self._display_help()
                     continue
 
-                #parser = self._create_parser(command)
                 parser = self.get_parser(command)
                 if not parser:
                     common_logger.error(f"Error: Unknown command '{command}'. Type 'help' for a list.")
@@ -144,7 +176,6 @@ class CommandProcessor:
 
                 command_instance = self.get_command_instance(command)
                 if command_instance:
-                    # Execute the command's process method
                     command_instance.process(parsed_args)
 
             except (EOFError, KeyboardInterrupt):
@@ -154,4 +185,3 @@ class CommandProcessor:
 if __name__ == "__main__":
     processor = CommandProcessor('config.json')
     processor.run()
-    

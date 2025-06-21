@@ -2,7 +2,7 @@ import os
 import subprocess
 import json
 from abc import ABC, abstractmethod
-
+import argparse
 from vangard.CommonUtils import common_logger, default_razor_config
 
 class BaseCommand(ABC):
@@ -20,8 +20,9 @@ class BaseCommand(ABC):
         self.app_state    = app_state
         self.cmd_config   = cmd_config
         self.razor_config = default_razor_config
+        self.script_vars  = None
 
-        common_logger.info(f"Initialize class {self.name} with app_state = {app_state}, cmd_config = {cmd_config}")
+        common_logger.debug(f"Initialize class {self.name} with app_state = {app_state}, cmd_config = {cmd_config}")
 
     def get_script(self, script_name):
         script_dirs = self.razor_config.get("alt_script_locations")
@@ -31,16 +32,17 @@ class BaseCommand(ABC):
                 return os.path.abspath(path)
         return None
 
-    def exec_default_script (self, args, daz_command_line:str|None):
+    def exec_default_script (self, daz_command_line:str|None=None):
         if "script-file" in self.cmd_config:
             script_path = self.get_script(self.cmd_config['script-file'])
-            return self.exec_remote_script(script_path, args, daz_command_line)
+            return self.exec_remote_script(script_path, daz_command_line)
         else:
-            common_logger.warning(f"No default script found for command {self.name}.")
+            common_logger.debug(f"No default script found for command {self.name}.")
             
 
-    def exec_remote_script (self, script_path, args, daz_command_line:str|None=None):    
-        script_vars = vars(args)
+    def exec_remote_script (self, script_path, daz_command_line:str|None=None):    
+        script_vars = self.script_vars
+
         daz_root    = self.razor_config.get("daz_root")
         daz_args    = self.razor_config.get("daz_args")
         
@@ -74,5 +76,12 @@ class BaseCommand(ABC):
         :param args: The parsed arguments object from argparse.
         """
 
-        common_logger.info(f"Calling BaseCommand.process; args={args}")
+        if isinstance(args, dict):
+            self.script_vars = args
+        elif isinstance(args, argparse.Namespace):
+            self.script_vars = vars(args)
+        else:
+            common_logger.error(f"Invalid process() args type in command {self.name}: {type(args)}")
+
+        common_logger.debug(f"Calling BaseCommand.process; args={args}")
 

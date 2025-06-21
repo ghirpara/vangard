@@ -2,3 +2,4 @@ prompt-toolkit
 pillow
 pyside6
 textual
+colorama

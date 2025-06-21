@@ -8,13 +8,13 @@ from .BaseCommand import BaseCommand
 
 class ListSceneProductsSU(BaseCommand):
 
-    def process_product_list_reset(target_file):
+    def process_product_list_reset(self, target_file):
         print (f"Attempt to unlink file {target_file}")
         
         if (os.path.exists(target_file)):
             Path.unlink(target_file)
 
-    def process_product_list(target_file):
+    def process_product_list(self, target_file):
         n=30
         while not os.path.exists(target_file):
             time.sleep(1)
@@ -42,10 +42,13 @@ class ListSceneProductsSU(BaseCommand):
     def process(self, args):
         super().process(args)
 
-        target_file = args['target_file']
+        if 'target_file' in self.script_vars:
+            target_file = self.script_vars['target_file']
+        else:
+            target_file = "C:/temp/products.json"
 
         self.process_product_list(target_file)
         
-        self.exec_default_script(args, None)
+        self.exec_default_script()
 
         self.process_product_list_reset(target_file)
