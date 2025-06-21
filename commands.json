@@ -24,6 +24,31 @@
         ]
     },
 
+    "lora-trainer-prep": {
+        "script-file": "SingleSceneRendererSU.dsa",
+        "description": "Render a matrixed serie of images suitable for LORA training.",
+        "args": [
+            {
+                "name": [
+                    "scene-files"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "A glob pattern that identifies the scene files to load. Each scene file should include a single model which has the hair and clothing applied"
+            },
+            {
+                "name": [
+                    "matrix-config"
+                ],
+                "type": "str",
+                "required": false,
+                "default": null,
+                "description": "Path to config file defining the render matrix of shots x poses x expressions"
+            }
+        ]
+    },
+
     "save-content-item": {
         "script-file": "SaveSelectedContentSU.dsa",
         "description": "Save the selected items in the content library to the specified target location",

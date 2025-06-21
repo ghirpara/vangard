@@ -71,5 +71,5 @@ type_dict = {
 default_razor_config = {
     "daz_root": "c:/Program Files/DAZ 3D/DAZStudio4/DAZStudio.exe",
     "daz_args": "",
-    "alt_script_locations": []
+    "alt_script_locations": ["./dazscripts"]
 }

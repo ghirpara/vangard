@@ -14,11 +14,12 @@ import sys
 import argparse
 import logging
 from pathlib import Path
-from vangard.SceneCommandProcessor import SceneCommandProcessor
+#from vangard.SceneCommandProcessor import SceneCommandProcessor
+from vangard.CommandProcessor import CommandProcessor
 from vangard.CommonUtils import common_logger
 
 
-__iname__ = 'Daz Scene Commander'
+__iname__ = 'Daz Scene Commander CLI'
 __version__ = '1.0.0'
 
 logger=None
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument ('-d', '--debug', default=False, action='store_true')
     parser.add_argument ('-v', '--version', default=False, action='store_true')
     parser.add_argument ('-n', '--no-command', default=False, action='store_true')    
-    parser.add_argument ('-c', '--command-file', default="commands.json")
+    parser.add_argument ('-c', '--command-file', default="config.json")
     args = parser.parse_args()
 
     if args.debug:
@@ -45,10 +46,15 @@ if __name__ == '__main__':
         common_logger.info (f'{__iname__} {__version__}')
         sys.exit(0)
 
-    scene_commander = SceneCommandProcessor(args.command_file)
-    scene_commander.process_loop()
+    #scene_commander = SceneCommandProcessor(args.command_file)
+    #scene_commander.process_loop()
+
+    processor = CommandProcessor(args.command_file)
+    processor.run()
+
 
 
 
     
+
     

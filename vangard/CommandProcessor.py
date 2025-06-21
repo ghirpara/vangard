@@ -3,6 +3,7 @@ import json
 import shlex
 import sys
 import importlib
+from .CommonUtils import common_logger
 
 class CommandProcessor:
     """
@@ -17,6 +18,29 @@ class CommandProcessor:
             'db': {},
             'next_id': 1
         }
+        self.parser_cache={}
+        self.command_cache={}
+
+    def get_parser(self, command_name):
+        if command_name in self.parser_cache:
+            return self.parser_cache[command_name]
+
+        parser = self._create_parser(command_name)
+        if parser is not None:
+            self.parser_cache[command_name] = parser
+
+        return parser
+
+    def get_command_instance(self, command_name):
+        if command_name in self.command_cache:
+            return self.command_cache[command_name]
+
+        command_class = self._create_command_instance(command_name)
+        if command_class is not None:
+            self.command_cache[command_name]=command_class
+
+        return command_class
+        
 
     def _load_config(self, config_path):
         """Loads the command configuration from a JSON file."""
@@ -24,13 +48,13 @@ class CommandProcessor:
             with open(config_path, 'r') as f:
                 return json.load(f)
         except FileNotFoundError:
-            print(f"Error: Configuration file not found at '{config_path}'")
+            common_logger.error(f"Error: Configuration file not found at '{config_path}'")
             sys.exit(1)
         except json.JSONDecodeError:
-            print(f"Error: Could not decode JSON from '{config_path}'")
+            common_logger.error(f"Error: Could not decode JSON from '{config_path}'")
             sys.exit(1)
 
-    def _get_command_instance(self, command_name):
+    def _create_command_instance(self, command_name):
         """
         Dynamically imports and instantiates a command handler class.
         """
@@ -38,7 +62,7 @@ class CommandProcessor:
         handler_path = cmd_config.get('handler_class')
 
         if not handler_path:
-            print(f"Warning: No handler_class configured for command '{command_name}'.")
+            common_logger.warning(f"Warning: No handler_class configured for command '{command_name}'.")
             return None
 
         try:
@@ -47,12 +71,12 @@ class CommandProcessor:
             module = importlib.import_module(module_path)
             CmdClass = getattr(module, class_name)
             # Instantiate the command, passing the application state
-            return CmdClass(self.app_state)
+            return CmdClass(class_name, self.app_state, cmd_config)
         except (ImportError, AttributeError) as e:
-            print(f"Error loading handler '{handler_path}': {e}")
+            common_logger.error(f"Error loading handler '{handler_path}': {e}")
             return None
         except Exception as e:
-            print(f"An unexpected error occurred while creating handler for '{command_name}': {e}")
+            common_logger.error(f"An unexpected error occurred while creating handler for '{command_name}': {e}")
             return None
 
     def _create_parser(self, command_name):
@@ -74,15 +98,15 @@ class CommandProcessor:
 
     def _display_help(self):
         # (This method is identical to the previous version)
-        print("Available commands:")
+        common_logger.info("Available commands:")
         for command, config in self.config.items():
-            print(f"  {command:<15} {config.get('help', 'No description available.')}")
-        print("\nType 'help <command>' for more information on a specific command.")
-        print("Type 'exit' or 'quit' to close the application.")
+            common_logger.info(f"  {command:<15} {config.get('help', 'No description available.')}")
+        common_logger.info("\nType 'help <command>' for more information on a specific command.")
+        common_logger.info("Type 'exit' or 'quit' to close the application.")
 
     def run(self):
         """Starts the main loop to read and process commands."""
-        print("Welcome! Type 'help' for available commands or 'exit' to quit.")
+        common_logger.info("Welcome! Type 'help' for available commands or 'exit' to quit.")
         while True:
             try:
                 raw_input = input("> ")
@@ -94,21 +118,23 @@ class CommandProcessor:
                 args = tokens[1:]
 
                 if command in ['exit', 'quit']:
-                    print("Exiting.")
+                    common_logger.info("Exiting.")
                     break
                 
                 if command == 'help':
                     if args:
-                        parser = self._create_parser(args[0])
+                        parser = self.get_parser(args[0])
+                        #parser = self._create_parser(args[0])
                         if parser: parser.print_help()
-                        else: print(f"Error: Unknown command '{args[0]}'")
+                        else: common_logger.error(f"Error: Unknown command '{args[0]}'")
                     else:
                         self._display_help()
                     continue
 
-                parser = self._create_parser(command)
+                #parser = self._create_parser(command)
+                parser = self.get_parser(command)
                 if not parser:
-                    print(f"Error: Unknown command '{command}'. Type 'help' for a list.")
+                    common_logger.error(f"Error: Unknown command '{command}'. Type 'help' for a list.")
                     continue
 
                 try:
@@ -116,15 +142,16 @@ class CommandProcessor:
                 except SystemExit:
                     continue
 
-                command_instance = self._get_command_instance(command)
+                command_instance = self.get_command_instance(command)
                 if command_instance:
                     # Execute the command's process method
                     command_instance.process(parsed_args)
 
             except (EOFError, KeyboardInterrupt):
-                print("\nExiting.")
+                common_logger.error("\nExiting.")
                 break
 
 if __name__ == "__main__":
     processor = CommandProcessor('config.json')
     processor.run()
+    
