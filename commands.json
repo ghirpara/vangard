@@ -24,6 +24,7 @@
         ]
     },
 
+    
     "lora-trainer-prep": {
         "script-file": "SingleSceneRendererSU.dsa",
         "description": "Render a matrixed serie of images suitable for LORA training.",

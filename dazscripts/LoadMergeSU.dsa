@@ -1,0 +1,53 @@
+/*
+ *   LoadMergeSU.dsa
+ *
+ *
+ * 
+ *
+ *   Author: G.Hirpara
+ *   Version: 1.0.0
+ *   Copyright (c) 2025 G.Hirpara
+ * 
+ *   LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+ *   USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+ * 
+ */
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function LoadMergeSU() {
+
+    sFunctionName = 'LoadMergeSU';
+
+    oScriptVars = init_script_utils (sFunctionName);
+    sSceneFile  = oScriptVars['scene-file'];
+    bMerge      = oScriptVars['merge'];
+
+    if (bMerge) {
+        oError = loadScene(sSceneFile, DzScene.MergeFile);
+    } else {
+        oError = loadScene(sSceneFile, DzScene.OpenNew);
+    }
+
+    if (oError.valueOf() == 0) {
+        log_success_event ("LoadMergeSU", 'Loaded scene file ' + sSceneFile);
+    } else {
+        log_error ("LoadMergeSU", 
+            {
+                'status':'failed', 'message': 
+                'Failed to load requested scene file: ' + sSceneFile + ':' + oError + ":" + getErrorMessage(oError)
+            }
+        );
+        return;
+    } 
+    log_success_event ("BatchRenderSU", "Rendering current scene.")
+        
+    close_script_utils();
+}
+
+LoadMergeSU();
+

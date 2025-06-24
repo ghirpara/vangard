@@ -1,7 +1,7 @@
 {
     "action": {
         "script-file": "ExecGenericActionSU.dsa",
-	"handler_class": "vangard.commands.ExecGenericActionSU.ExecGenericActionSU",
+	    "handler_class": "vangard.commands.ExecGenericActionSU.ExecGenericActionSU",
         "help": "Execute the specified action with optional settings as a series of key=value pairs separated by commas",
         "arguments": [
             {
@@ -24,9 +24,33 @@
         ]
     },
 
+    "load-scene": {
+        "script-file": "LoadMergeSU.dsa",
+        "handler_class": "vangard.commands.LoadMergeSU.LoadMergeSU",
+        "help": "Load the specified scene file, replacing the current scene if --merge is not ",
+        "arguments": [
+            {
+                "names": ["scene-file"],
+                "help": "Path to scene file to load",
+                "type": "str",
+                "default": null
+            },
+            {
+                "names": [
+                    "-m",
+                    "--merge"
+                ],
+                "help": "If specified, merge the new scene into the current scene instead of replacing.",
+                "action": "store_true",
+                "default": false
+            }
+        ]
+    },
+
+
     "lora-trainer-prep": {
         "script-file": "SingleSceneRendererSU.dsa",
-	"handler_class": "vangard.commands.SingleSceneRendererSU.SingleSceneRendererSU",
+	    "handler_class": "vangard.commands.SingleSceneRendererSU.SingleSceneRendererSU",
         "help": "Render a matrixed serie of images suitable for LORA training.",
         "arguments": [
             {
@@ -39,7 +63,7 @@
             },
             {
                 "names": [
-                    "matrix-config"
+                    "lora-trainer-config"
                 ],
                 "type": "str",
                 "default": null,

@@ -1,0 +1,102 @@
+/*
+ *   GenericScriptSU.dsa
+ *
+ *
+ * 
+ *
+ *   Author: G.Hirpara
+ *   Version: 1.0.0
+ *   Copyright (c) 2025 G.Hirpara
+ * 
+ *   LICENSING FOR THIS CODE IS DOCUMENTED IN THE ACCOMPANYING LICENSE.md FILE. 
+ *   USERS OF THIS CODE AGREE TO TERMS AND CONDITIONS OUTLINED IN THE LICENSE.
+ * 
+ */
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+var focus_script = null;
+
+function RandomizedLoraTrainingSetGeneratorSU() {
+
+    sFunctionName = 'RandomizedLoraTrainingSetGeneratorSU';
+
+    // Read the script parameters
+    oScriptVars = init_script_utils (sFunctionName);
+    scene_file_list    = oScriptVars['scene_files'];
+    image_count        = oScriptVars['image_count'];
+    allow_dupes        = oScriptVars['allow_dupes'];
+    lora_config_opts   = oScriptVars['lora-selection-config']
+    render_target      = oScriptVars['target'];
+    output_base_path   = oScriptVars['output-path'];
+
+    // Now we do the same thing as we did for the batch render, except that we 
+    // select for the number of images and apply the randomization of pose, expression, 
+    // and camera. If allow_dupes is False, then we should not allow the same 
+    // combination to be used twice 
+
+    if (render_target == 'iray-server-bridge') {
+        if (oScriptVars['iray_config_file'] != undefined) {
+            iray_config = readFromFileAsJson(oScriptVars['iray_config_file']);
+        }
+    }
+
+    aIrayVariables = ["iray_server', 'iray_protocol", "iray_port", "iray_user", "iray_password"]
+    for (var x = 0; x < aIrayVariables.length; x++) {
+        test = oScriptVars[aIrayVariables[x]];
+        if (test != null) {
+            iray_config[aIrayVariables[x]] = test;
+        }
+    }
+
+    render_config = oScriptVars;
+    render_config['iray_config'] = iray_config
+
+    log_info (
+    	"RandomizedLoraTrainingSetGeneratorSU",
+        {
+            'scene_file_list': scene_file_list
+        }
+    )
+
+    ordered     = oScriptVars['order'] != 'random';
+    ordering    = lora_config_opts['ordering'];
+    cameras     = lora_config_opts['cameras'];
+    poses       = lora_config_opts['poses'];
+    expressions = lora_config_opts['expressions'];
+
+    // Unlike the normal batch render, a scene file list must be specified
+    if (scene_file_list != undefined) {
+        for (var y = 0; y < scene_file_list.length; y++) {
+            scene_file = scene_file_list[y];
+
+            // If the selection is not random, then walk through the sections in order 
+            if (ordered) {
+                
+                for (var order = 0; order < ordering.length; order++) {
+                    order_type = ordering[order];
+                    switch (order_type) {
+                        case 'cameras':
+                            
+
+                    }
+                }
+
+                
+            }
+
+            execBatchRenderScene(scene_file, render_config, render_target, output_base_path);
+        }
+    }
+    
+    
+
+    // Add script code here
+        
+    close_script_utils();
+}
+
+RandomizedLoraTrainingSetGeneratorSU();
+

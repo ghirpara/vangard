@@ -40,8 +40,10 @@ class BaseCommand(ABC):
             common_logger.debug(f"No default script found for command {self.name}.")
             
 
-    def exec_remote_script (self, script_path, daz_command_line:str|None=None):    
-        script_vars = self.script_vars
+    def exec_remote_script (self, script_path, script_vars:dict|None=None, daz_command_line:str|None=None):    
+
+        if (script_vars == None):
+            script_vars = self.script_vars
 
         daz_root    = self.razor_config.get("daz_root")
         daz_args    = self.razor_config.get("daz_args")

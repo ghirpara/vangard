@@ -1488,11 +1488,20 @@ function getDefaultLocalRenderOptions(oRenderMgr, oCamera) // Added oCamera para
     return oRenderOptions;
 }
 
+function loadScene(sSceneFile, iMode) {
+
+    oError = Scene.loadScene(sSceneFile, iMode);
+
+    return oError;
+
+}
+
 function execBatchRenderScene(sSceneFile, render_config, render_target, output_base_path) {
 
     if (sSceneFile != null) {
+
         // Load the given scene file
-        oError = Scene.loadScene(sSceneFile, DzScene.OpenNew);
+        oError = loadScene(sSceneFile, DzScene.OpenNew);
         
         if (oError.valueOf() == 0) {
             log_success_event ("BatchRenderSU", 'Loaded scene file ' + sSceneFile);
