@@ -19,6 +19,30 @@ include (util_path);
 
 var focus_script = null;
 
+function execBatchRenderScene(sSceneFile, render_config, render_target, output_base_path) {
+
+    if (sSceneFile != null) {
+
+        // Load the given scene file
+        oError = loadScene(sSceneFile, DzScene.OpenNew);
+        
+        if (oError.valueOf() == 0) {
+            log_success_event ("BatchRenderSU", 'Loaded scene file ' + sSceneFile);
+        } else {
+            log_error ("BatchRenderSU", 
+                {
+                    'status':'failed', 'message': 
+                    'Failed to load requested scene file: ' + sSceneFile + ':' + oError + ":" + getErrorMessage(oError)
+                }
+            );
+            return;
+        } 
+        log_success_event ("BatchRenderSU", "Rendering current scene.")
+
+        execBatchRender(render_config, render_target, output_base_path );
+    }
+}
+
 function BatchRenderSU() {
 
     sFunctionName = 'BatchRenderSU';

@@ -171,7 +171,7 @@ function inheritsType( oObject, aTypeNames )
 };
 
 /**
- * Call the named action with the given settings object
+ * Call the named DAZ Action with the given settings object
  * 
  * @param {string} sClassName - The class name of the action to call
  * @param {object} oSettings - A dictionary of settings as key/value pairs for the action, if the action requires settings
@@ -228,7 +228,16 @@ function buildLabelListFromArray(aSourceList) {
     return return_list;
 }
 
-
+/*********************************************************************/
+/**
+ * Get an updated scene file name that takes into account the numerical ending on the 
+ * the source filename and increments it by the specified amount. 
+ * 
+ * For example if the input_name = xyz0, return xyz1 
+ * 
+ * @param {string} input_file - The scene filename to increment 
+ * @returns {string} A scene filename incremented by 1
+ */
 function incrementedSceneFileName(input_name) 
 {
 
@@ -337,9 +346,6 @@ function getFileErrorString( oFile )
  *                         See DAZ Studio `DzFile` documentation for open modes.
  * @returns {DzObject} An EMCAScript Object on success, null on failure
  */
-
-/*********************************************************************/
-
 function readFromFileAsJson(sFilename) {
 // If we do not have a file path
     if( sFilename.isEmpty() ){
@@ -967,32 +973,6 @@ function getValidCameraList(oRenderConfig) {
             }
             break;
     }
-
-    // if ((sCameraSelectionCriteria == "all_visible") || (sCameraSelectionCriteria == "pattern")) {
-    //     for (var n = 0; n < aCameraList.length; n++) {
-    //         var oCamera = aCameraList[n];
-    //         var sCameraName = oCamera.getLabel();
-    //         if (sCameraSelectionCriteria == "all_visible") {
-    //             if (oCamera.isVisible()) {
-    //                 aCameraListActual.push(oCamera);
-    //             }
-    //         } else if (sCameraSelectionCriteria == "pattern") {
-    //             var test_pattern = oRenderConfig['camera_pattern'];
-    //             if (test_pattern) { // Ensure pattern exists
-    //                 var match_index  = sCameraName.search(new RegExp(test_pattern)); // Create RegExp from string
-    //                 if (match_index != -1) {
-    //                     aCameraListActual.push(oCamera);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // } else {
-    //     var viewportCam = getViewportCamera();
-    //     if (viewportCam) {
-    //         aCameraListActual.push (viewportCam);
-    //     }
-    // }
-
     return aCameraListActual;
 }
 
@@ -1488,36 +1468,20 @@ function getDefaultLocalRenderOptions(oRenderMgr, oCamera) // Added oCamera para
     return oRenderOptions;
 }
 
+/**
+ * Load the specified scene file with the specified mode 
+ * 
+ * 
+ * @param {string} sSceneFile - Absolute path to the scene file to load 
+ * @param {integer} iMode - Scene file mode to load in. Valid values include Scene.OpenNew and Scene.MergeFile
+ * @returns {object} oError - An error object that contains error code and message if an error occurred
+ */
 function loadScene(sSceneFile, iMode) {
 
     oError = Scene.loadScene(sSceneFile, iMode);
 
     return oError;
 
-}
-
-function execBatchRenderScene(sSceneFile, render_config, render_target, output_base_path) {
-
-    if (sSceneFile != null) {
-
-        // Load the given scene file
-        oError = loadScene(sSceneFile, DzScene.OpenNew);
-        
-        if (oError.valueOf() == 0) {
-            log_success_event ("BatchRenderSU", 'Loaded scene file ' + sSceneFile);
-        } else {
-            log_error ("BatchRenderSU", 
-                {
-                    'status':'failed', 'message': 
-                    'Failed to load requested scene file: ' + sSceneFile + ':' + oError + ":" + getErrorMessage(oError)
-                }
-            );
-            return;
-        } 
-        log_success_event ("BatchRenderSU", "Rendering current scene.")
-
-        execBatchRender(render_config, render_target, output_base_path );
-    }
 }
 
 /**
