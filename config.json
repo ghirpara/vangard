@@ -342,11 +342,24 @@
 
      "inc-scene": {
          "script-file": "SceneRollerSU.dsa",
-	 "handler_class": "vangard.commands.SceneRollerSU.SceneRollerSU",
-        "help": "Save the current scene file incrementing the file name with a numerical, incrementing, postfix.",
-        "arguments": []
+	    "handler_class": "vangard.commands.SceneRollerSU.SceneRollerSU",
+        "help": "Save the current scene file incrementing the file name with a numerical, incrementing, suffix.",
+        "arguments": [
+             {
+                "name": ["-n", "--number"],
+                "description": "If specified, replace the numeric suffix at the end of the scene file name with the given number (or add it if one doesn't exist).",
+                "type": "int",
+                "default": false
+            },
+             {
+                "name": ["-i", "--increment"],
+                "description": "If specified, increment the scene file suffix by the given amount (default = 1).",
+                "type": "int",
+                "default": 1
+            }
+        ]
     },
-
+    
     "product-list": {
         "script-file": "ListSceneProductsSU.dsa",
 	"handler_class": "vangard.commands.ListSceneProductsSU.ListSceneProductsSU",

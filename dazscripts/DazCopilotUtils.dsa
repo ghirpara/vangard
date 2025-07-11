@@ -228,6 +228,31 @@ function buildLabelListFromArray(aSourceList) {
     return return_list;
 }
 
+function getNextNumericalSuffixedName(sSourceName, increment_size, next_scene_number)
+{
+    if (increment_size == null || increment_size == undefined) {
+        increment_size = 1;
+    }
+
+    if (next_scene_number == null || next_scene_number == undefined) {
+        test = sSourceName.search(/[0-9]+$/);
+        if (test == -1) {
+            suffix = 0;
+            slice_name = sSourceName;
+        } else {
+            old_name   = sSourceName.slice(test);
+            suffix     = parseInt(old_name)+increment_size;
+            slice_name = scene_base_name.slice(0, test)   
+        }
+    } else {
+        suffix         = next_scene_number;
+    }
+
+    new_name = slice_name + String(suffix);
+
+    return new_name;
+}
+
 /*********************************************************************/
 /**
  * Get an updated scene file name that takes into account the numerical ending on the 
@@ -236,9 +261,11 @@ function buildLabelListFromArray(aSourceList) {
  * For example if the input_name = xyz0, return xyz1 
  * 
  * @param {string} input_file - The scene filename to increment 
+ * @param {integer} increment_size - Optional increment amount (default=1). Cannot be used with next_scene_number.
+ * @param {integer} next_scene_number - Optional next scene number to use instead of incrementing based on current scene number. Ignores increment_size if specified.
  * @returns {string} A scene filename incremented by 1
  */
-function incrementedSceneFileName(input_name) 
+function incrementedSceneFileName(input_name, increment_size, next_scene_number) 
 {
 
     var scene_file_name;
@@ -254,17 +281,24 @@ function incrementedSceneFileName(input_name)
     var scene_path        = scene_info.absolutePath();
     var scene_extension   = scene_info.suffix();
 
-    test = scene_base_name.search(/[0-9]+$/);
+    sNewBaseName = getNextNumericalSuffixedName(scene_base_name, increment_size, next_scene_number);
 
-    if (test == -1) {
-        scene_base_name = scene_base_name + "0";
-    } else {
-        old_name = scene_base_name.slice(test);
-        new_name = parseInt(old_name)+1;
-        scene_base_name = scene_base_name.slice(0, test) + String(new_name);
-    }
+    var resultStr = scene_path + "/" + sNewBaseName + "." + scene_extension;
 
-    var resultStr = scene_path + "/" + scene_base_name + "." + scene_extension;
+    // iNextSuffix = getNextNumericalSuffix(scene_base_name);
+
+
+    // test = scene_base_name.search(/[0-9]+$/);
+
+    // if (test == -1) {
+    //     scene_base_name = scene_base_name + "0";
+    // } else {
+    //     old_name = scene_base_name.slice(test);
+    //     new_name = parseInt(old_name)+1;
+    //     scene_base_name = scene_base_name.slice(0, test) + String(new_name);
+    // }
+
+    //var resultStr = scene_path + "/" + scene_base_name + "." + scene_extension;
 
     return resultStr;
 

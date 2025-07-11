@@ -24,8 +24,14 @@ function SceneRollerSU() {
     sFunctionName = 'SceneRollerSU';
 
     oScriptVars = init_script_utils (sFunctionName);
+    iNextSceneNumber = oScriptVars['number'];
+    iIncrementSize   = oScriptVars['increment'];
 
-    var next_scene_file_name = incrementedSceneFileName();
+    sSceneFileName           =  Scene.getFilename();
+    var next_scene_file_name = incrementedSceneFileName(
+        sSceneFileName,
+        iIncrementSize,
+        iNextSceneNumber);
 
     var oError = Scene.saveScene(next_scene_file_name);
 

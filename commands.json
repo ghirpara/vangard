@@ -320,7 +320,15 @@
      "inc-scene": {
         "script-file": "SceneRollerSU.dsa",
         "description": "Save the current scene file incrementing the file name with a numerical, incrementing, postfix.",
-        "args": []
+        "args": [
+            {
+                "name": ["-n", "--number"],
+                "description": "If specified, replace the numeric prefix at the end of the scene file name with the given number (or add it if one doesn't exist).",
+                "type": "int",
+                "default": false
+            },
+            
+        ]
     },
 
     "product-list": {
