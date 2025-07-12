@@ -1303,6 +1303,17 @@ function prepareIrayBridgeConfiguration(oIrayConfig, oRenderMgr, oRenderer) {
  */
 function execBatchRender(oRenderConfig, sRenderTarget, sOutputBasePath)
 {
+
+    log_debug(
+       'DazCopilotUtils::execBatchRender',
+       {
+          'oRenderConfig': JSON.stringify(oRenderConfig),
+	  'sRenderTarget': sRenderTarget,
+	  'sOutputBasePath': sOutputBasePath
+       }
+    );	
+
+
     // Get the render manager
     var oRenderMgr = App.getRenderMgr();
     var oRenderer = oRenderMgr.findRenderer( "DzIrayRenderer" ); // Assumes Iray, could be more generic

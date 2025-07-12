@@ -70,21 +70,31 @@ function BatchRenderSU() {
         }
     }
 
+    log_info (
+    	"BatchRenderSU",
+	{
+	    'iray_config': JSON.stringify(iray_config)
+	}
+    )
+
+
     render_config = oScriptVars;
     render_config['iray_config'] = iray_config
+
+    extracted_scene_list = scene_file_list['scene_files'];
 
     log_info (
     	"BatchRenderSU",
 	{
-	    'scene_file_list': scene_file_list
+	    'scene_files': extracted_scene_list
 	}
     )
 
     if (scene_file_list == undefined) {
 	    execBatchRenderScene(null, render_config, render_target, output_base_path);
     } else {
-        for (var y = 0; y < scene_file_list.length; y++) {
-            scene_file = scene_file_list[y];
+        for (var y = 0; y < extracted_scene_list.length; y++) {
+            scene_file = extracted_scene_list[y];
             execBatchRenderScene(scene_file, render_config, render_target, output_base_path);
         }
     }
