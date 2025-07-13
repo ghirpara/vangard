@@ -18,12 +18,12 @@ util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
 include (util_path);
 
 
-var sAutoFocusScriptPath = "X:\DAZ Libraries\Project\Scripts\MikeD\Auto Focus Suite\MDAF Auto Focus on Selected Item.dse";
+var sAutoFocusScriptPath = "X:/DAZ Libraries/Project/Scripts/MikeD/Auto Focus Suite/MDAF Auto Focus on Selected Item.dse";
 var focus_script = null;
 var bFocusEnabled = null;
 
-function CreateBasicCameraSU() {
-
+function CreateBasicCameraSU() 
+{
     sFunctionName = 'CreateBasicCameraSU';
 
     oScriptVars = init_script_utils (sFunctionName);

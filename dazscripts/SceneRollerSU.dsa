@@ -31,12 +31,23 @@ function SceneRollerSU() {
     var next_scene_file_name = incrementedSceneFileName(
         sSceneFileName,
         iIncrementSize,
-        iNextSceneNumber);
+        iNextSceneNumber
+    );
+
+    log_info(
+        "SceneRollerSU",
+        {
+            'sSceneFileName': sSceneFileName,
+            'iIncrementSize': iIncrementSize,
+            'iNextSceneNumber': iNextSceneNumber,
+            'next_scene_file_name': next_scene_file_name
+        }
+    )
 
     var oError = Scene.saveScene(next_scene_file_name);
 
-    if (oError != DzError.DZ_NO_ERROR) {
-        log_failure_event("SceneRollerSU", "Failed to save scene file: " + oError);
+    if (oError.valueOf() != 0) {
+        log_failure_event("SceneRollerSU", "Failed to save scene file: " + oError.valueOf());
     } else {
         log_success_event("SceneRollerSU", "Saved scene with new filename: " + next_scene_file_name);
     }

@@ -68,7 +68,6 @@ function getDefaultLogSourceName() {
     return s_logSourceName;
 }
 
-/*********************************************************************/
 /**
  * Prints messages to the DAZ Studio script output console if the Alt key (`s_bAltPressed`) is pressed.
  * This function is intended for debugging purposes.
@@ -90,7 +89,6 @@ function debug()
     print( aArguments.join(" ") );
 };
 
-/*********************************************************************/
 /**
  * Retrieves a translated string if localization is available (via `qsTr`),
  * otherwise returns the original string.
@@ -109,7 +107,7 @@ function text( sText )
     return sText;
 };
 
-/*********************************************************************/
+
 /**
  * Sets default options within a DAZ Studio settings object.
  * Specifically, it sets "CompressOutput" to `false`.
@@ -138,7 +136,7 @@ function updateModifierKeyState() {
     s_bMetaPressed = (nModifierState & 0x10000000) != 0;
 }
 
-/*********************************************************************/
+
 /**
  * Checks if a QObject-like instance inherits from any of the specified type names.
  * This is useful for determining the type of DAZ Studio objects.
@@ -228,32 +226,77 @@ function buildLabelListFromArray(aSourceList) {
     return return_list;
 }
 
+function extractNameAndSuffix(sSourceName) 
+{
+    var expr = RegExp("[0-9]+$");
+    var slice_name;
+    var suffix;
+
+    test = sSourceName.search(expr);
+    if (test == -1) {
+        suffix     = 0;
+        slice_name = sSourceName;
+    } else {
+        suffix     = sSourceName.slice(test);
+        slice_name = sSourceName.slice(0, test);
+    }
+
+    var rv=[];
+    rv[0] = slice_name;
+    rv[1] = suffix;
+
+    return rv;
+}
+
 function getNextNumericalSuffixedName(sSourceName, increment_size, next_scene_number)
 {
-    if (increment_size == null || increment_size == undefined) {
-        increment_size = 1;
-    }
-
-    if (next_scene_number == null || next_scene_number == undefined) {
-        test = sSourceName.search(/[0-9]+$/);
-        if (test == -1) {
-            suffix = 0;
-            slice_name = sSourceName;
-        } else {
-            old_name   = sSourceName.slice(test);
-            suffix     = parseInt(old_name)+increment_size;
-            slice_name = scene_base_name.slice(0, test)   
+    log_info(
+        "getNextNumericalSuffixedName",
+        {
+            'sSourceName': sSourceName,
+            'increment_size': increment_size,
+            'next_scene_number': next_scene_number
         }
+    );
+
+    // Get the initial base name 
+    var aNameAndSuffix = extractNameAndSuffix(sSourceName);
+    var sNakedName     = aNameAndSuffix[0];
+    var iNakedSuffix   = parseInt(aNameAndSuffix[1]);
+
+    // If we specify the next_scene_number, then we just replace any existing number
+    // suffix and ignore everything else 
+    if (next_scene_number == null || next_scene_number == undefined || next_scene_number == false) {
+
+        // If we specify an increment value, use it, otherwise increment by 1 
+        if (increment_size == null || increment_size == undefined) {
+            increment_size = 1;
+        }
+
+        iNextSuffixValue = iNakedSuffix + increment_size;
+
     } else {
-        suffix         = next_scene_number;
+
+        iNextSuffixValue = next_scene_number;
+
     }
 
-    new_name = slice_name + String(suffix);
+    log_info(
+        "getNextNumericalSuffixedName",
+        {
+            'aNameAndSuffix': JSON.stringify(aNameAndSuffix),
+            'sNakedName': sNakedName,
+            'iNakedSuffix': iNakedSuffix,
+            'iNextSuffixValue': iNextSuffixValue
+        }
+    )
+
+    new_name = sNakedName + iNextSuffixValue;
 
     return new_name;
 }
 
-/*********************************************************************/
+
 /**
  * Get an updated scene file name that takes into account the numerical ending on the 
  * the source filename and increments it by the specified amount. 
@@ -285,27 +328,10 @@ function incrementedSceneFileName(input_name, increment_size, next_scene_number)
 
     var resultStr = scene_path + "/" + sNewBaseName + "." + scene_extension;
 
-    // iNextSuffix = getNextNumericalSuffix(scene_base_name);
-
-
-    // test = scene_base_name.search(/[0-9]+$/);
-
-    // if (test == -1) {
-    //     scene_base_name = scene_base_name + "0";
-    // } else {
-    //     old_name = scene_base_name.slice(test);
-    //     new_name = parseInt(old_name)+1;
-    //     scene_base_name = scene_base_name.slice(0, test) + String(new_name);
-    // }
-
-    //var resultStr = scene_path + "/" + scene_base_name + "." + scene_extension;
-
     return resultStr;
 
 }
 
-
-/*********************************************************************/
 /**
  * Retrieves a human-readable error string for a `DzFile` object based on its error state.
  * @param {DzFile} oFile - The `DzFile` object to get the error string from.
@@ -371,7 +397,6 @@ function getFileErrorString( oFile )
     return aResult.length > 0 ? aResult.join( ": " ) : "";
 };
 
-/*********************************************************************/
 /**
  * Reads data (string or QByteArrayWrapper) as a JSON structure 
  * @param {string} sFilename - The path to the file read from
@@ -477,7 +502,6 @@ function writeToFile( sFilename, vData, nMode )
     return sError;
 };
 
-/*********************************************************************/
 /**
  * Sets required options within a DAZ Studio settings object.
  * Sets "CompressOutput" to `false` and "RunSilent" based on `bShowOptions`.
@@ -495,7 +519,6 @@ function setRequiredOptions( oSettings, bShowOptions )
 };
 
 
-/*********************************************************************/
 /**
  * Initializes the logging system by opening a log file.
  * The global `log_file` variable will hold the `DzFile` object.
@@ -523,7 +546,7 @@ function init_log(sLogFile, bOverwrite) {
 }
 
 
-/*********************************************************************/
+
 /**
  * Closes the currently open log file if it exists.
  * @returns {void}
@@ -535,7 +558,7 @@ function close_log() {
 }
 
 
-/*********************************************************************/
+
 /**
  * Initializes script utilities. This includes:
  * - Setting the global log source name (`s_logSourceName`).
@@ -592,7 +615,7 @@ function init_script_utils(log_source_id) {
     return sVars;
 }
 
-/*********************************************************************/
+
 /**
  * Closes resources initialized by `init_script_utils`, specifically the log file.
  * @returns {void}
@@ -601,7 +624,7 @@ function close_script_utils() {
     close_log();
 }
 
-/*********************************************************************/
+
 /**
  * Logs an event to the initialized log file.
  * The event is logged as a JSON string containing source, timestamp, event type, name, and additional info.
@@ -637,7 +660,6 @@ function log_event(event_type, event_name, event_info) {
 }
 
 
-/*********************************************************************/
 /**
  * Logs an informational event. Convenience wrapper for `log_event`.
  * @param {string} event_name - A name or category for the informational event.
@@ -648,7 +670,6 @@ function log_info(event_name, event_info) {
     log_event("INFO", event_name, event_info);
 }
 
-/*********************************************************************/
 /**
  * Logs a warning event. Convenience wrapper for `log_event`.
  * @param {string} event_name - A name or category for the warning event.
@@ -659,7 +680,6 @@ function log_warning(event_name, event_info) {
     log_event("WARNING", event_name, event_info);
 }
 
-/*********************************************************************/
 /**
  * Logs an error event. Convenience wrapper for `log_event`.
  * @param {string} event_name - A name or category for the error event.
@@ -670,7 +690,6 @@ function log_error(event_name, event_info) {
     log_event("ERROR", event_name, event_info);
 }
 
-/*********************************************************************/
 /**
  * Logs a debug event. Convenience wrapper for `log_event`.
  * @param {string} event_name - A name or category for the debug event.
@@ -689,7 +708,6 @@ function log_failure_event(event_source, message) {
     log_error (event_source, {'status':'failed', 'message': message});
 }
 
-/*********************************************************************/
 /**
  * Transfers all properties from a source camera to a target camera.
  * @param {DzCamera} oTargetCamera - The camera to which properties will be copied.
@@ -710,7 +728,6 @@ function transferCameraProperties(oTargetCamera, oSourceCamera) {
     }
 }
 
-/*********************************************************************/
 /**
  * Gets a list of currently selected nodes in the scene that are of type `DzBone`.
  * Relies on `Scene.getNodeList()`.
@@ -729,8 +746,6 @@ function getSkeletonNodes() {
     return aSkeletonNodes;
 }
 
-
-/*********************************************************************/
 /**
  * Transfers transformation (translation, rotation, scale) properties from one node (or its skeleton)
  * to another node (or its skeleton).
@@ -794,7 +809,6 @@ function transferNodeTransforms(oToNode, oFromNode, bTranslate, bRotate, bScale)
     }
 }
 
-/*********************************************************************/
 /**
  * Generates a random value within a specified range.
  * @param {number} low_range - The lower bound of the random range.
@@ -815,7 +829,6 @@ function getRandomValue(low_range, high_range) {
     return Number(output);
 }
 
-/*********************************************************************/
 /**
  * Sets the Y-axis rotation of a given node (or its skeleton if it's a `DzBone`).
  * @param {DzNode} oFromNode - The node to rotate. If it's a `DzBone`, its skeleton will be rotated.
@@ -852,9 +865,6 @@ function transformNodeRotate(oFromNode, fValue, sAxis) {
     }
 }
 
-
-
-/*********************************************************************/
 /**
  * Sets the arbitrary translation of a given node (or its skeleton if it's a `DzBone`).
  * @param {DzNode} oFromNode - The node to translate. If it's a `DzBone`, its skeleton will be rotated.
@@ -916,7 +926,6 @@ function dropNodeToNode(oFromNode, sAxis, fValue) {
     }
 }
 
-/*********************************************************************/
 /**
  * Retrieves the camera associated with the active 3D viewport.
  * Relies on `MainWindow.getViewportMgr()`.
@@ -934,7 +943,6 @@ function getViewportCamera() {
     return camera;
 }
 
-/*********************************************************************/
 /**
  * Retrieves the camera associated with the active 3D viewport.
  * Relies on `MainWindow.getViewportMgr()`.
@@ -1010,7 +1018,6 @@ function getValidCameraList(oRenderConfig) {
     return aCameraListActual;
 }
 
-/*********************************************************************/
 /**
  * Creates a new perspective camera (`DzBasicCamera`), names it, adds it to the scene,
  * and positions/orients it to match the current viewport camera's view.
@@ -1061,7 +1068,6 @@ function createPerspectiveCamera(cameraLabelPrefix, cameraName, cameraClass) {
     return oNewCamera;
 }
 
-/*********************************************************************/
 /**
  * Selects a single node in the scene by its label. All other nodes are deselected.
  * @param {string} label - The label of the node to select.
@@ -1080,7 +1086,6 @@ function select_node(label) {
     return rv;
 }
 
-/*********************************************************************/
 /**
  * Deletes a node from the scene by its label.
  * It first selects the node and then attempts to remove it.
@@ -1118,32 +1123,6 @@ function getZeroPaddedNumber(input_number, padding_size) {
     }
     // Ensure input_number is a string for concatenation
     var paddedNumber = (padstr + String(input_number)).slice (-(padding_size + String(input_number).length > padding_size ? String(input_number).length : padding_size));
-    // A more common approach for total length `padding_size`:
-    // var numStr = String(input_number);
-    // return padstr.string(0, padding_size - numStr.length) + numStr;
-    // Or using modern JS: String(input_number).padStart(padding_size, '0'); (but this is DAZ Script)
-
-    // The original logic: (padstr + String(input_number)).slice(-(padding_size+1))
-    // Example: input=5, padding_size=3. padstr="000". ("000" + "5").slice(-4) => "0005"
-    // Example: input=15, padding_size=3. padstr="000". ("000" + "15").slice(-4) => "0015"
-    // This actually makes the total length padding_size + number_of_digits_in_input.
-    // Assuming the intent is to have padding_size zeros *before* the number, or ensure total length.
-    // Let's stick to the original slice logic for documentation but note its specific effect.
-    // The original slice `-(padding_size+1)` seems to assume a single digit number or desires a fixed padding length regardless of input number length.
-    // If `padding_size` is the *total desired length* of the output string:
-    // paddedNumber = (padstr + String(input_number)).slice(-padding_size);
-    // Re-evaluating the original:
-    // if input_number=5, padding_size=3 => ("000" + "5").slice(-4) => "0005"
-    // if input_number=5, padding_size=2 => ("00" + "5").slice(-3) => "005"
-    // The slice index `-(padding_size+1)` suggests the output string will have `padding_size+1` characters if `input_number` is a single digit.
-    // Let's assume `padding_size` means the number of zeros to potentially prepend.
-
-    // Corrected interpretation for the provided `slice (-(padding_size+1))`:
-    // This aims to get the last `padding_size + 1` characters.
-    // e.g., num=7, pad=3. ("000"+"7").slice(-4) -> "0007".
-    // e.g., num=7, pad=2. ("00"+"7").slice(-3) -> "007".
-    // This is unusual. A more standard interpretation of padding_size would be the *total* length.
-    // Given the code, it pads with `padding_size` zeros and then takes the last `padding_size+1` chars.
     var paddedNumberStr = (padstr + String(input_number));
     paddedNumber = paddedNumberStr.slice(-(padding_size + 1));
 
