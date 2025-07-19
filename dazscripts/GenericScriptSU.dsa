@@ -25,7 +25,6 @@ function GenericScriptSU() {
 
     oScriptVars = init_script_utils (sFunctionName);
 
-
     // Add script code here
         
     close_script_utils();

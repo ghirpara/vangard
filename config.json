@@ -117,7 +117,7 @@
     "drop-object": {
         "script-file": "DropObjectSU.dsa",
 	"handler_class": "vangard.commands.DropObjectSU.DropObjectSU",
-        "help": "Drop one object on top of another, respecting bounding box bondaries.",
+        "help": "Drop one object on top of another, respecting bounding box boundaries.",
         "arguments": [
               {
                 "names": ["source-node"],
