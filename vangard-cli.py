@@ -1,14 +1,17 @@
-###################################################################
+# Copyright (C) 2025 Blue Moon Foundary Software
 #
-# Razor - Batch utilities for DAZ Studio 4.22+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# Copyright (c) 2024-present G.S. Hirpara <gsh@bluemoonfoundry.com>
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
 #
-# Licensed under the MIT License.
-# See LICENSE in the project root for license information.
-#
-#
-###################################################################
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import sys
 import argparse
