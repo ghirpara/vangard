@@ -18,6 +18,18 @@ The project right now is in active development and prototyping mode, so the easi
   pip install -r requirements.txt
 </pre>
 
+The tools require some configuration information to point where DAZ Studio is installed. The simplest way to do this is to put a file named _razor.cfg_ in either your home directory or the directory where this repo has been cloned to. The _razor.cfg_ file should look this:
+
+<pre>
+  {
+    "daz_root": "x:/DAZNext/Applications/64-bit/DAZ 3D/DAZStudio4/DAZStudio.exe",
+    "daz_args": "",
+    "alt_script_locations": ["./dazscripts"]
+  }
+</pre>
+
+For most cases, the only change you need to make is set the _daz_root_ to point to where your DAZ Studio executable lives. 
+
 * Git Bash: https://git-scm.com/downloads/win
 * Python: https://apps.microsoft.com/detail/9nrwmjp3717k?hl=en-US&gl=US
 
