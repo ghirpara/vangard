@@ -22,6 +22,12 @@ The project right now is in active development and prototyping mode, so the easi
 * Python: https://apps.microsoft.com/detail/9nrwmjp3717k?hl=en-US&gl=US
 
 
+
+## Tools
+
+The following are the current set of tools under active development:
+
+
 ## vangard-cli
 
 This the primary command line utility that this project will deliver. It consists of a series of commands and scripts that I've developed over the time I've worked with DAZ Studio, mainly to address frustrations or limitations on my workflow, especially in the area of automating tasks that currently take a lot of clicks and manual, repetetive work. My goal is to continually add to this list as I come across future improvements or additions to the workflow, as well as take input and requests from the community for things that they would love to see automated or scripted. 
@@ -29,7 +35,6 @@ This the primary command line utility that this project will deliver. It consist
 <pre>
   python -m vangard-cli
 </pre>
-
 
 ## vangard-image-viewer
 
