@@ -88,6 +88,40 @@
         ]
     },
 
+     "save-subset": {
+        "script-file": "SaveSceneSubsetSU.dsa",
+	    "handler_class": "vangard.commands.SaveSceneSubsetSU.SaveSceneSubsetSU",
+        "help": "Save the selected items to a scene subset file",
+        "arguments": [
+            {
+                "names": [
+                    "subset-file"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Location to save content item to"
+            },
+            {
+                "names": [
+                    "-d",
+                    "--directory"
+                ],
+                "type": "str",
+                "default": null,
+                "help": "Directory to store the subset file in"
+            },
+            {
+                "names": [
+                    "-c",
+                    "--category"
+                ],
+                "type": "str",
+                "default": "",
+                "help": "Category to associate subset with"
+            }
+        ]
+    },
+
 
     "scene-render": {
         "script-file": "SingleSceneRendererSU.dsa",

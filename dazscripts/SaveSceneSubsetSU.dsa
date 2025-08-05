@@ -1,0 +1,182 @@
+/*
+ * Copyright (C) 2025 Blue Moon Foundry Software
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+includeDir_oFILE = DzFile( getScriptFileName() );
+util_path = includeDir_oFILE.path() + "/DazCopilotUtils.dsa";
+include (util_path);
+
+
+function SaveSceneSubsetSU()
+{
+    
+    sFunctionName = 'SaveSceneSubsetSU';
+
+    oScriptVars = init_script_utils (sFunctionName);
+
+    sOutputDir          = oScriptVars['directory'];
+    sSubsetName         = oScriptVars['subset-file'];
+    sCharacterCategory  = oScriptVars['category'];
+
+    var sSubsetFileName = sOutputDir + "/" + sSubsetName + ".duf"
+
+	// Get the asset IO manager
+	var oAssetIOMgr = App.getAssetIOMgr();
+
+	// Define the class name of the asset filter we want to use
+	var sClassName = "DzSceneSubsetAssetFilter";
+
+	// Find the index of the asset filter with the class name we want
+	var nAssetIOFilter = oAssetIOMgr.findFilter( sClassName );
+	
+    // If we did not find an asset filter with the class name we wanted
+	if( nAssetIOFilter < 0 ){
+		// Inform the user
+        log_failure_event(
+            "SaveSceneSubsetSU",
+             text( "An asset filter with the class name " + "\"%1\" could not be found.").arg( sClassName )
+        );
+		
+		// We are done...
+		return;
+	}
+	
+	// Get the asset filter at the prescribed index
+	var oAssetIOFilter = oAssetIOMgr.getFilter( nAssetIOFilter );
+	
+    // If we do not have a valid asset filter
+	if( !oAssetIOFilter ){
+		// Inform the user
+         log_failure_event(
+            "SaveSceneSubsetSU",
+		    text( "An asset filter with the class name " + "\"%1\" could not be found.").arg( sClassName )
+         )
+		// We are done...
+		return;
+	}
+	
+	// Create a settings object
+	var oSettings = new DzFileIOSettings();
+	
+	// Get the default settings
+	oAssetIOFilter.getDefaultOptions( oSettings );
+	
+	
+	// Get the root of the primary selection
+	var oRootNode = getRootNode( Scene.getPrimarySelection() );
+	
+	// If we had a node selected, get its name otherwise use a default
+	var sRootName = (oRootNode ? oRootNode.getName() : "Genesis8Female");
+	var sRootLabel = (oRootNode ? oRootNode.getLabel() : "");
+	
+	// Get the content manager
+	var oContentMgr = App.getContentMgr();
+	
+	// Get the base path - the first mapped content directory
+	var sBasePath = oContentMgr.getContentDirectoryPath( 0 );
+	
+	// Set the default options; this can be used to set
+	// options before the dialog is displayed
+	setDefaultOptions( oSettings );
+	
+
+	
+	if(oRootNode ){
+		// Get the number of figures fit to the primary selection
+		var nFollowers = oRootNode.getNumFollowSkeletons();
+		// Pre-size an array of node labels
+		var aNodeLabels = new Array( nFollowers );
+		// Iterate over the followers
+		for( var i = 0; i < nFollowers; i += 1 ){
+			// Insert the label
+			aNodeLabels[ i ] = oRootNode.getFollowSkeleton( i ).getLabel();
+		}
+		// Pre-pend the root node's label
+		aNodeLabels.unshift( sRootLabel );
+		
+		// Declare working variables
+		var oChild;
+		var sLabel;
+		
+		// Get all child nodes in the hierarchy of the primary selection
+		var aChildren = (oRootNode ? oRootNode.getNodeChildren( true ) : []);
+		// Iterate over the children
+		for( var i = 0, nChildren = aChildren.length; i < nChildren; i += 1 ){
+			// Get the 'current' child
+			oChild = aChildren[ i ];
+			// If the child is a bone
+			if( inheritsType( oChild, ["DzBone"] ) ){
+				// Next!!
+				continue;
+			}
+			
+			// Get the label
+			sLabel = oChild.getLabel();
+			// Insert the label
+			aNodeLabels.push( sLabel );
+		}
+		
+		// Set specific nodes
+		setNodeOptions( oSettings, aNodeLabels );
+		
+		// Set whether or not to smart parent target to the wearable
+		oSettings.setBoolValue( "SmartParent", oRootNode && oRootNode.getNodeParent() ? true : false );
+		
+		// Set whether or not to include the root pose
+		oSettings.setBoolValue( "PoseTarget", false );
+	}
+	
+	// Set the required options; override user settings if needed
+	setRequiredOptions( oSettings, false );
+	
+	// Debug
+	// debug( "Required:", oSettings.toJsonString() );
+
+    log_debug (
+        "SaveSceneSubsetSU",
+        {"settings": oSettings}
+    );
+	
+	// Construct the name of the file to save to; omit file extension
+	
+	
+	// Use the asset manager to save a file, using the filter and defined settings
+	var oError = oAssetIOMgr.doSaveWithOptions( 
+        oAssetIOFilter, 
+        oSettings,
+		true, 
+        sSubsetFileName, 
+        "", 
+        sCharacterCategory 
+    );
+	
+	// If there was no error
+	if( oError.valueOf() == 0x00000000 ){
+		// Debug
+		log_success_event("SaveSceneSubsetSU", "Saved:" + sSubsetFileName );
+	// If there was an error
+	} else {
+		// Debug
+        log_failure_event("SaveSceneSubsetSU", "Error:" + oError );
+	}
+	
+	// Clean up; do not leak memory
+	oAssetIOFilter.deleteLater();
+   
+	close_script_utils();
+}
+
+SaveSceneSubsetSU();

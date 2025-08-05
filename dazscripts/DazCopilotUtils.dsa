@@ -808,6 +808,74 @@ function transferNodeTransforms(oToNode, oFromNode, bTranslate, bRotate, bScale)
     }
 }
 
+function getRootNode( oNode )
+{
+    // If we have a node and it is a bone
+    if( oNode && inheritsType( oNode, ["DzBone"] ) ){
+        // We want the skeleton
+        return oNode.getSkeleton();
+    }
+    
+    // Return the original node
+    return oNode;
+};
+
+// void : A function for setting the default options
+function setDefaultOptions( oSettings )
+{
+    // Set the initial state of the compress file checkbox
+    oSettings.setBoolValue( "CompressOutput", false );
+};
+
+// void : A function for adding an element name
+function setElementOption( oSettings, sElementSettingsKey, sElementName )
+{
+    // Get the (nested) settings that hold the named element
+    var oElementsSettings = oSettings.getSettingsValue( sElementSettingsKey );
+    // If the object doesn't already exist
+    if( !oElementsSettings ){
+        // Create it
+        oElementsSettings = oSettings.setSettingsValue( sElementSettingsKey );
+    }
+    
+    // Declare working variable
+    var sElement;
+    
+    // Initialize
+    var i = 0;
+    
+    // Iterate over the element names
+    for( nElements = oElementsSettings.getNumValues(); i < nElements; i += 1 ){
+        // Get the 'current' element name
+        sElement = oElementsSettings.getValue( i );
+        // If the name is the same as the one we are adding
+        if( sElement == sElementName ){
+            // We are done...
+            return;
+        }
+    }
+    
+    // Create it
+    oElementSettings = oElementsSettings.setStringValue( String( i ), sElementName );
+};
+
+function setNodeOption( oSettings, sNodeName )
+{
+    // Set the property options for the named node
+    setElementOption( oSettings, "NodeNames", sNodeName );
+};
+
+// void : A function for adding multiple nodes names
+function setNodeOptions( oSettings, aNodeNames )
+{
+    // Iterate over the node names array
+    for( var i = 0; i < aNodeNames.length; i += 1 ){
+        // Set the property options for the 'current' node name
+        setNodeOption( oSettings, aNodeNames[ i ] );
+    }
+};
+	
+
 /**
  * Generates a random value within a specified range.
  * @param {number} low_range - The lower bound of the random range.
